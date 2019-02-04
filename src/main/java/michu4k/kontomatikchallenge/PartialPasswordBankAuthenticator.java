@@ -13,7 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class PartialPasswordAccountLogger implements AccountLogger {
+public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     private final static String LOGIN_SITE_URL = "https://login.nestbank.pl/rest/v1/auth/checkLogin";
     private final static String PASSWORD_AND_AVATAR_SITE_URL =
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
@@ -25,7 +25,7 @@ public class PartialPasswordAccountLogger implements AccountLogger {
     private String sessionToken;
     private String userId;
 
-    PartialPasswordAccountLogger(String login, String pass, String avatarId, WebClient webClient) {
+    PartialPasswordBankAuthenticator(String login, String pass, String avatarId, WebClient webClient) {
         this.login = login;
         this.password = pass;
         this.avatarId = avatarId;
@@ -39,7 +39,7 @@ public class PartialPasswordAccountLogger implements AccountLogger {
 
         // entered password is shorter than expected
         if(passwordKeysIntArr[passwordKeysIntArr.length-1] > password.length()) {
-            Communicator.printBadPasswordError();
+            UserInterface.printBadPasswordError();
             System.exit(2);
         }
 
@@ -63,11 +63,11 @@ public class PartialPasswordAccountLogger implements AccountLogger {
             passwordPage = webClient.getPage(loginSendRequest);
         } catch (FailingHttpStatusCodeException e) {
             e.printStackTrace();
-            Communicator.printBadLoginError();
+            UserInterface.printBadLoginError();
             System.exit(2);
         } catch (IOException e) {
             e.printStackTrace();
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         return passwordPage.getWebResponse().getContentAsString();
@@ -89,11 +89,11 @@ public class PartialPasswordAccountLogger implements AccountLogger {
             afterLoginPage = webClient.getPage(passAndAvatarSendRequest);
         } catch (FailingHttpStatusCodeException e) {
             e.printStackTrace();
-            Communicator.printCredentialsError();
+            UserInterface.printCredentialsError();
             System.exit(2);
         } catch (IOException e2) {
             e2.printStackTrace();
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         final String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
@@ -104,7 +104,7 @@ public class PartialPasswordAccountLogger implements AccountLogger {
             userId = userIdMatcher.group(1);
         }
         else {
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
@@ -118,7 +118,7 @@ public class PartialPasswordAccountLogger implements AccountLogger {
             passwordKeys = passwordKeysMatcher.group(1);
         }
         else {
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         final String[] passwordKeysStrArr = passwordKeys.split(",");

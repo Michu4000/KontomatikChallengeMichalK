@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class SimpleAccountChecker implements AccountChecker {
+public class SimpleAccountScraper implements AccountScraper {
     private final static String ACCOUNTS_STATUS_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
     private final static String ACCOUNTS_STATUS_SITE_URL_END = "/dashboard/www/config";
 
@@ -24,14 +24,14 @@ public class SimpleAccountChecker implements AccountChecker {
     private List<String> accountsBalances;
     private List<String> accountsCurrencies;
 
-    SimpleAccountChecker(String sessionToken, String userId, WebClient webClient) {
+    SimpleAccountScraper(String sessionToken, String userId, WebClient webClient) {
         this.sessionToken = sessionToken;
         this.userId = userId;
         this.webClient = webClient;
     }
 
     @Override
-    public void checkAccounts() {
+    public void scrapeAccounts() {
         URL accountsStatusUrl = null;
         try {
             accountsStatusUrl = new URL(new StringBuilder(ACCOUNTS_STATUS_SITE_URL_BEGINNING)
@@ -49,7 +49,7 @@ public class SimpleAccountChecker implements AccountChecker {
             accountsStatusPage = webClient.getPage(checkAccountsStatusRequest);
         } catch (IOException e) {
             e.printStackTrace();
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         final String checkAccountsStatusResponse = accountsStatusPage.getWebResponse().getContentAsString();
@@ -65,7 +65,7 @@ public class SimpleAccountChecker implements AccountChecker {
             accountsInfo = accountsMatcher.group(1);
         }
         else {
-            Communicator.printConnectionError();
+            UserInterface.printConnectionError();
             System.exit(1);
         }
         return Arrays.asList(accountsInfo.split("\\},"));
@@ -91,7 +91,7 @@ public class SimpleAccountChecker implements AccountChecker {
                 accountsNames.add(accountsNamesMatcher.group(1));
             }
             else {
-                Communicator.printConnectionError();
+                UserInterface.printConnectionError();
                 System.exit(1);
             }
 
@@ -99,7 +99,7 @@ public class SimpleAccountChecker implements AccountChecker {
                 accountsNumbers.add(accountsNumbersMatcher.group(1));
             }
             else {
-                Communicator.printConnectionError();
+                UserInterface.printConnectionError();
                 System.exit(1);
             }
 
@@ -107,7 +107,7 @@ public class SimpleAccountChecker implements AccountChecker {
                 accountsBalances.add(accountsBalancesMatcher.group(1));
             }
             else {
-                Communicator.printConnectionError();
+                UserInterface.printConnectionError();
                 System.exit(1);
             }
 
@@ -115,7 +115,7 @@ public class SimpleAccountChecker implements AccountChecker {
                 accountsCurrencies.add(accountsCurrenciesMatcher.group(1));
             }
             else {
-                Communicator.printConnectionError();
+                UserInterface.printConnectionError();
                 System.exit(1);
             }
         }

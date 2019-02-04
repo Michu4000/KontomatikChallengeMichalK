@@ -2,8 +2,8 @@ package michu4k.kontomatikchallenge;
 
 import java.util.List;
 
-public interface AccountChecker {
-    void checkAccounts();
+public interface AccountScraper {
+    void scrapeAccounts();
 
     List<String> getAccountsNames();
 

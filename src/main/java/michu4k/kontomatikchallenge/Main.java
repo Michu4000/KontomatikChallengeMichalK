@@ -13,7 +13,7 @@ import com.gargoylesoftware.htmlunit.ProxyConfig;
 
 import java.util.List;
 
-public class NestChecker {
+public class Main {
     private final static boolean DEBUG_MODE = false;
 
     private static String login;
@@ -36,31 +36,31 @@ public class NestChecker {
             createAndSetWebClientWithProxy();
         }
         logIn();
-        checkBank();
-        Communicator.printAccountsBalance(accountsNames, accountsNumbers, accountsBalances, accountsCurrencies);
+        scrapeAccountsData();
+        UserInterface.printAccountsBalance(accountsNames, accountsNumbers, accountsBalances, accountsCurrencies);
     }
 
     private static void checkArguments(String[] args) {
         switch (args.length) {
             case 0:
                 // ask for login, password, avatarId
-                login = Communicator.askForLogin();
-                password = Communicator.askForPassword();
-                avatarId = Communicator.askForAvatar();
+                login = UserInterface.askForLogin();
+                password = UserInterface.askForPassword();
+                avatarId = UserInterface.askForAvatar();
                 break;
 
             case 1:
                 // ask for password and avatarId
                 login = args[0];
-                password = Communicator.askForPassword();
-                avatarId = Communicator.askForAvatar();
+                password = UserInterface.askForPassword();
+                avatarId = UserInterface.askForAvatar();
                 break;
 
             case 2:
                 // ask only for avatarId
                 login = args[0];
                 password = args[1];
-                avatarId = Communicator.askForAvatar();
+                avatarId = UserInterface.askForAvatar();
                 break;
 
             case 3:
@@ -71,14 +71,14 @@ public class NestChecker {
                 break;
 
             default:
-                Communicator.printArgumentsError();
+                UserInterface.printArgumentsError();
                 System.exit(2); // terminate program with error status
                 break;
         }
 
         // check for blank arguments/inputs
         if(login.length() == 0 || password.length() == 0 || avatarId.length() == 0) {
-            Communicator.printArgumentsError();
+            UserInterface.printArgumentsError();
             System.exit(2);
         }
     }
@@ -97,19 +97,19 @@ public class NestChecker {
     }
 
     private static void logIn() {
-        final AccountLogger accountLogger =
-                new PartialPasswordAccountLogger(login, password, avatarId, webClient);
-        accountLogger.logIntoAccount();
-        sessionToken = accountLogger.getSessionToken();
-        userId = accountLogger.getUserId();
+        final BankAuthenticator bankAuthenticator =
+                new PartialPasswordBankAuthenticator(login, password, avatarId, webClient);
+        bankAuthenticator.logIntoAccount();
+        sessionToken = bankAuthenticator.getSessionToken();
+        userId = bankAuthenticator.getUserId();
     }
 
-    private static void checkBank() {
-        final AccountChecker accountChecker = new SimpleAccountChecker(sessionToken, userId, webClient);
-        accountChecker.checkAccounts();
-        accountsNames = accountChecker.getAccountsNames();
-        accountsNumbers = accountChecker.getAccountsNumbers();
-        accountsBalances = accountChecker.getAccountsBalances();
-        accountsCurrencies = accountChecker.getAccountsCurrencies();
+    private static void scrapeAccountsData() {
+        final AccountScraper accountScraper = new SimpleAccountScraper(sessionToken, userId, webClient);
+        accountScraper.scrapeAccounts();
+        accountsNames = accountScraper.getAccountsNames();
+        accountsNumbers = accountScraper.getAccountsNumbers();
+        accountsBalances = accountScraper.getAccountsBalances();
+        accountsCurrencies = accountScraper.getAccountsCurrencies();
     }
 }
