@@ -44,7 +44,7 @@ public class SimpleAccountScraper implements AccountScraper {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        final WebRequest checkAccountsStatusRequest = WebRequestFactory.produceRequestGet(accountsStatusUrl,
+        WebRequest checkAccountsStatusRequest = WebRequestFactory.produceRequestGet(accountsStatusUrl,
                 sessionToken);
 
         Page accountsStatusPage = null;
@@ -55,8 +55,8 @@ public class SimpleAccountScraper implements AccountScraper {
             UserInterface.printConnectionError();
             System.exit(1);
         }
-        final String checkAccountsStatusResponse = accountsStatusPage.getWebResponse().getContentAsString();
-        final List<String> accountsInfoList = readAccountsInfoFromResponse(checkAccountsStatusResponse);
+        String checkAccountsStatusResponse = accountsStatusPage.getWebResponse().getContentAsString();
+        List<String> accountsInfoList = readAccountsInfoFromResponse(checkAccountsStatusResponse);
         extractAccountsDatafromAccountsInfoList(accountsInfoList);
     }
 
@@ -76,19 +76,19 @@ public class SimpleAccountScraper implements AccountScraper {
 
     private void extractAccountsDatafromAccountsInfoList(List<String> accountsInfoList) {
         accountsNames = new ArrayList();
-        final Pattern accountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
+        Pattern accountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
         accountsNumbers = new ArrayList();
-        final Pattern accountsNumbersPattern = Pattern.compile("\"nrb\":\"(.*)\",\"name\"");
+        Pattern accountsNumbersPattern = Pattern.compile("\"nrb\":\"(.*)\",\"name\"");
         accountsBalances = new ArrayList();
-        final Pattern accountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
+        Pattern accountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
         accountsCurrencies = new ArrayList();
-        final Pattern accountsCurrenciesPattern = Pattern.compile("\"currency\":\"(.*)\",\"version\"");
+        Pattern accountsCurrenciesPattern = Pattern.compile("\"currency\":\"(.*)\",\"version\"");
 
         for (String accountInfo : accountsInfoList) {
-            final Matcher accountsNamesMatcher = accountsNamesPattern.matcher(accountInfo);
-            final Matcher accountsNumbersMatcher = accountsNumbersPattern.matcher(accountInfo);
-            final Matcher accountsBalancesMatcher = accountsBalancesPattern.matcher(accountInfo);
-            final Matcher accountsCurrenciesMatcher = accountsCurrenciesPattern.matcher(accountInfo);
+            Matcher accountsNamesMatcher = accountsNamesPattern.matcher(accountInfo);
+            Matcher accountsNumbersMatcher = accountsNumbersPattern.matcher(accountInfo);
+            Matcher accountsBalancesMatcher = accountsBalancesPattern.matcher(accountInfo);
+            Matcher accountsCurrenciesMatcher = accountsCurrenciesPattern.matcher(accountInfo);
 
             if (accountsNamesMatcher.find()) {
                 accountsNames.add(accountsNamesMatcher.group(1));

@@ -37,8 +37,8 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
 
     @Override
     public void logIntoAccount() {
-        final String loginResponse = typeLogin();
-        final int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
+        String loginResponse = typeLogin();
+        int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
 
         // entered password is shorter than expected
         if(passwordKeysIntArr[passwordKeysIntArr.length-1] > password.length()) {
@@ -56,10 +56,10 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        final String loginSendRequestBody = new StringBuilder("{\"login\":\"")
+        String loginSendRequestBody = new StringBuilder("{\"login\":\"")
                 .append(login)
                 .append("\"}").toString();
-        final WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
+        WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
         Page passwordPage = null;
         try {
@@ -77,14 +77,14 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     }
 
     private void sendPasswordAndAvatar(int[] passwordKeysIntArr) {
-        final String passAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr);
+        String passAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr);
         URL passwordAndAvatarUrl = null;
         try {
             passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        final WebRequest passAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
+        WebRequest passAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
                 passAndAvatarSendRequestBody);
 
         Page afterLoginPage = null;
@@ -99,10 +99,10 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             UserInterface.printConnectionError();
             System.exit(1);
         }
-        final String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
+        String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
 
-        final Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
-        final Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
+        Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
+        Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
         if (userIdMatcher.find()) {
             userId = userIdMatcher.group(1);
         }
@@ -114,8 +114,8 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     }
 
     private int[] extractPartialPasswordKeysFromResponse(String loginResponse) {
-        final Pattern passwordKeysPattern = Pattern.compile("\"passwordKeys\":\\[(.*)\\]");
-        final Matcher passwordKeysMatcher = passwordKeysPattern.matcher(loginResponse);
+        Pattern passwordKeysPattern = Pattern.compile("\"passwordKeys\":\\[(.*)\\]");
+        Matcher passwordKeysMatcher = passwordKeysPattern.matcher(loginResponse);
         String passwordKeys = null;
         if (passwordKeysMatcher.find()) {
             passwordKeys = passwordKeysMatcher.group(1);
@@ -124,13 +124,13 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             UserInterface.printConnectionError();
             System.exit(1);
         }
-        final String[] passwordKeysStrArr = passwordKeys.split(",");
-        final Stream<String> passwordKeysStream = Arrays.stream(passwordKeysStrArr);
+        String[] passwordKeysStrArr = passwordKeys.split(",");
+        Stream<String> passwordKeysStream = Arrays.stream(passwordKeysStrArr);
         return passwordKeysStream.mapToInt(x -> Integer.parseInt(x)).toArray();
     }
 
     private String buildMaskedPassword(int[] passwordKeysIntArr) {
-        final StringBuilder maskedPassBuilder = new StringBuilder("{\"login\":\"");
+        StringBuilder maskedPassBuilder = new StringBuilder("{\"login\":\"");
         maskedPassBuilder.append(login)
                 .append("\",\"maskedPassword\":{");
         for (int passKeyIdx : passwordKeysIntArr) {

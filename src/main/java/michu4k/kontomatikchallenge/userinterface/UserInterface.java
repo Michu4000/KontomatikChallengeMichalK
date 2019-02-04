@@ -30,7 +30,7 @@ public class UserInterface {
     }
 
     private static String readUserAnswer() {
-        final Scanner input = new Scanner(System.in);
+        Scanner input = new Scanner(System.in);
         return input.nextLine();
     }
 

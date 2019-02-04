@@ -97,13 +97,13 @@ public class Main {
 
     private static void createAndSetWebClientWithProxy() {
         createAndSetWebClient();
-        final ProxyConfig proxyConfig = new ProxyConfig("127.0.0.1", 8080);
+        ProxyConfig proxyConfig = new ProxyConfig("127.0.0.1", 8080);
         webClient.getOptions().setProxyConfig(proxyConfig);
         webClient.getOptions().setUseInsecureSSL(true);
     }
 
     private static void logIn() {
-        final BankAuthenticator bankAuthenticator =
+        BankAuthenticator bankAuthenticator =
                 new PartialPasswordBankAuthenticator(login, password, avatarId, webClient);
         bankAuthenticator.logIntoAccount();
         sessionToken = bankAuthenticator.getSessionToken();
@@ -111,7 +111,7 @@ public class Main {
     }
 
     private static void scrapeAccountsData() {
-        final AccountScraper accountScraper = new SimpleAccountScraper(sessionToken, userId, webClient);
+        AccountScraper accountScraper = new SimpleAccountScraper(sessionToken, userId, webClient);
         accountScraper.scrapeAccounts();
         accountsNames = accountScraper.getAccountsNames();
         accountsNumbers = accountScraper.getAccountsNumbers();
