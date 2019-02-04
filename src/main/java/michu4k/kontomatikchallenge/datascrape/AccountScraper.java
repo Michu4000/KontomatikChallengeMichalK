@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge;
+package michu4k.kontomatikchallenge.datascrape;
 
 import java.util.List;
 

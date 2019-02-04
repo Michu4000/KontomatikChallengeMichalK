@@ -1,8 +1,11 @@
-package michu4k.kontomatikchallenge;
+package michu4k.kontomatikchallenge.datascrape;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
+
+import michu4k.kontomatikchallenge.userinterface.UserInterface;
+import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -24,7 +27,7 @@ public class SimpleAccountScraper implements AccountScraper {
     private List<String> accountsBalances;
     private List<String> accountsCurrencies;
 
-    SimpleAccountScraper(String sessionToken, String userId, WebClient webClient) {
+    public SimpleAccountScraper(String sessionToken, String userId, WebClient webClient) {
         this.sessionToken = sessionToken;
         this.userId = userId;
         this.webClient = webClient;

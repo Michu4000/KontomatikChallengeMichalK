@@ -11,6 +11,12 @@ package michu4k.kontomatikchallenge;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.ProxyConfig;
 
+import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
+import michu4k.kontomatikchallenge.bankauthentication.PartialPasswordBankAuthenticator;
+import michu4k.kontomatikchallenge.datascrape.AccountScraper;
+import michu4k.kontomatikchallenge.datascrape.SimpleAccountScraper;
+import michu4k.kontomatikchallenge.userinterface.UserInterface;
+
 import java.util.List;
 
 public class Main {

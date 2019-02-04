@@ -1,9 +1,12 @@
-package michu4k.kontomatikchallenge;
+package michu4k.kontomatikchallenge.bankauthentication;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+
+import michu4k.kontomatikchallenge.userinterface.UserInterface;
+import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -25,7 +28,7 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     private String sessionToken;
     private String userId;
 
-    PartialPasswordBankAuthenticator(String login, String pass, String avatarId, WebClient webClient) {
+    public PartialPasswordBankAuthenticator(String login, String pass, String avatarId, WebClient webClient) {
         this.login = login;
         this.password = pass;
         this.avatarId = avatarId;

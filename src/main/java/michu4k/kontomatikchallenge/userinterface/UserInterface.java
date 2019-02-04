@@ -1,9 +1,9 @@
-package michu4k.kontomatikchallenge;
+package michu4k.kontomatikchallenge.userinterface;
 
 import java.util.List;
 import java.util.Scanner;
 
-class UserInterface {
+public class UserInterface {
     private final static String ASK_LOGIN_MSG = "Type your login:";
     private final static String ASK_PASSWORD_MSG = "Type your password:";
     private final static String ASK_AVATAR_MSG = "Type your avatar id number:";
@@ -14,17 +14,17 @@ class UserInterface {
     private final static String ARGUMENT_ERROR_MSG = "Bad arguments. Usage: Main [login] [password] [avatarId]";
     private final static String OUTPUT_MSG_HEADER = "\nNEST ACCOUNTS BALANCES:";
 
-    static String askForLogin() {
+    public static String askForLogin() {
         System.out.println(ASK_LOGIN_MSG);
         return readUserAnswer();
     }
 
-    static String askForPassword() {
+    public static String askForPassword() {
         System.out.println(ASK_PASSWORD_MSG);
         return readUserAnswer();
     }
 
-    static String askForAvatar() {
+    public static String askForAvatar() {
         System.out.println(ASK_AVATAR_MSG);
         return readUserAnswer();
     }
@@ -34,27 +34,27 @@ class UserInterface {
         return input.nextLine();
     }
 
-    static void printArgumentsError() {
+    public static void printArgumentsError() {
         System.out.println(ARGUMENT_ERROR_MSG);
     }
 
-    static void printConnectionError(){
+    public static void printConnectionError(){
         System.out.println(CONNECTION_ERROR_MSG);
     }
 
-    static void printBadLoginError(){
+    public static void printBadLoginError(){
         System.out.println(BAD_LOGIN_MSG);
     }
 
-    static void printBadPasswordError(){
+    public static void printBadPasswordError(){
         System.out.println(BAD_PASSWORD_MSG);
     }
 
-    static void printCredentialsError(){
+    public static void printCredentialsError(){
         System.out.println(BAD_CREDENTIALS_MSG);
     }
 
-    static void printAccountsBalance(List<String> accountsNames,
+    public static void printAccountsBalance(List<String> accountsNames,
                                      List<String> accountsNumbers,
                                      List<String> accountsBalances,
                                      List<String> accountsCurrencies) {

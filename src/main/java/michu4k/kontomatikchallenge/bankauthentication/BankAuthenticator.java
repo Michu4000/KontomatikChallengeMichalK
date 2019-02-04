@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge;
+package michu4k.kontomatikchallenge.bankauthentication;
 
 public interface BankAuthenticator {
     void logIntoAccount();
