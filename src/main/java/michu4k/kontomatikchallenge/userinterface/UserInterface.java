@@ -42,7 +42,13 @@ public class UserInterface {
                 // don't ask - everything is in commandline arguments
                 userCredentials.setLogin(args[0]);
                 userCredentials.setPassword(args[1]);
-                userCredentials.setAvatarId(Integer.parseInt(args[2]));
+                try {
+                    userCredentials.setAvatarId(Integer.parseInt(args[2]));
+                } catch (NumberFormatException e) {
+                    e.printStackTrace();
+                    ErrorsPrinter.printBadAvatarIdError();
+                    System.exit(2);
+                }
                 break;
 
             default:
@@ -51,7 +57,7 @@ public class UserInterface {
                 break;
         }
 
-        // check for blank arguments/inputs
+        // check for blank arguments
         if (!userCredentials.isEverythingFilled()) {
             ErrorsPrinter.printArgumentsError();
             System.exit(2);
@@ -60,27 +66,37 @@ public class UserInterface {
         return userCredentials;
     }
 
-    public static String askForLogin() {
+    private static String askForLogin() {
         System.out.println(ASK_LOGIN_MSG);
-        return readUserAnswer();
+        String loginAnswer = readUserAnswer();
+        if (loginAnswer.length() == 0) {
+            ErrorsPrinter.printBadLoginError();
+            System.exit(2);
+        }
+        return loginAnswer;
     }
 
-    public static String askForPassword() {
+    private static String askForPassword() {
         System.out.println(ASK_PASSWORD_MSG);
-        return readUserAnswer();
+        String passwordAnswer = readUserAnswer();
+        if (passwordAnswer.length() == 0) {
+            ErrorsPrinter.printBadPasswordError();
+            System.exit(2);
+        }
+        return passwordAnswer;
     }
 
-    public static int askForAvatar() {
+    private static int askForAvatar() {
         System.out.println(ASK_AVATAR_MSG);
-        int userId = -1;
+        int userIdAnswer = -1;
         try {
-            userId = Integer.parseInt(readUserAnswer());
+            userIdAnswer = Integer.parseInt(readUserAnswer());
         } catch (NumberFormatException e) {
             e.printStackTrace();
             ErrorsPrinter.printBadAvatarIdError();
             System.exit(2);
         }
-        return userId;
+        return userIdAnswer;
     }
 
     private static String readUserAnswer() {
@@ -96,7 +112,8 @@ public class UserInterface {
                     .append("\naccount name: ")
                     .append(bankAccountsData.get(accountIdx).getAccountName())
                     .append("\naccount number: ")
-                    .append(Arrays.toString(bankAccountsData.get(accountIdx).getAccountNumber()).replaceAll("\\D", ""))
+                    .append(Arrays.toString(bankAccountsData.get(accountIdx)
+                            .getAccountNumber()).replaceAll("\\D", ""))
                     .append("\naccount balance: ")
                     .append(bankAccountsData.get(accountIdx).getAccountBalance())
                     .append(" ")

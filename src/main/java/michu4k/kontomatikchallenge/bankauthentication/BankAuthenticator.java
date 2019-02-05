@@ -1,7 +1,10 @@
 package michu4k.kontomatikchallenge.bankauthentication;
 
 import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
+import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
 
 public interface BankAuthenticator {
-    BankSession logIntoAccount();
+    BankSession logIntoAccount(UserCredentials userCredentials) throws BankConnectionException, BadCredentialsException;
 }
