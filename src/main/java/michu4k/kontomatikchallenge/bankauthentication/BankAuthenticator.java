@@ -6,5 +6,5 @@ import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
 
 public interface BankAuthenticator {
-    BankSession logIntoAccount(UserCredentials userCredentials) throws BankConnectionException, BadCredentialsException;
+    BankSession logIntoBankAccount(UserCredentials userCredentials) throws BankConnectionException, BadCredentialsException;
 }

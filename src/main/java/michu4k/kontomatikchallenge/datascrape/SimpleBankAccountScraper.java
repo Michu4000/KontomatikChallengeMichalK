@@ -21,8 +21,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class SimpleBankAccountScraper implements BankAccountScraper {
-    private final static String ACCOUNTS_STATUS_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
-    private final static String ACCOUNTS_STATUS_SITE_URL_END = "/dashboard/www/config";
+    private final static String BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
+    private final static String BANK_ACCOUNTS_DATA_SITE_URL_END = "/dashboard/www/config";
 
     private WebClient webClient;
 
@@ -31,73 +31,73 @@ public class SimpleBankAccountScraper implements BankAccountScraper {
     }
 
     @Override
-    public List<BankAccountData> scrapeAccounts(BankSession bankSession) throws BankConnectionException {
-        URL accountsStatusUrl = null;
+    public List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException {
+        URL bankAccountsDataUrl = null;
         try {
-            accountsStatusUrl = new URL(new StringBuilder(ACCOUNTS_STATUS_SITE_URL_BEGINNING)
+            bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
                     .append(bankSession.getUserId())
-                    .append(ACCOUNTS_STATUS_SITE_URL_END)
+                    .append(BANK_ACCOUNTS_DATA_SITE_URL_END)
                     .toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        WebRequest checkAccountsStatusRequest = WebRequestFactory.produceRequestGet(accountsStatusUrl,
+        WebRequest checkBankAccountsDataRequest = WebRequestFactory.produceRequestGet(bankAccountsDataUrl,
                 bankSession.getSessionToken());
 
-        Page accountsStatusPage;
+        Page bankAccountsDataPage;
         try {
-            accountsStatusPage = webClient.getPage(checkAccountsStatusRequest);
+            bankAccountsDataPage = webClient.getPage(checkBankAccountsDataRequest);
         } catch (IOException e) {
             e.printStackTrace();
             throw new BankConnectionException();
         }
-        String checkAccountsStatusResponse = accountsStatusPage.getWebResponse().getContentAsString();
-        List<String> accountsInfoList = readAccountsInfoFromResponse(checkAccountsStatusResponse);
-        return extractAccountsDatafromAccountsInfoList(accountsInfoList);
+        String checkBankAccountsDataResponse = bankAccountsDataPage.getWebResponse().getContentAsString();
+        List<String> bankAccountsInfoList = readBankAccountsInfoFromResponse(checkBankAccountsDataResponse);
+        return extractBankAccountsDatafromBankAccountsInfoList(bankAccountsInfoList);
     }
 
-    private List<String> readAccountsInfoFromResponse(String response) throws BankConnectionException {
-        Pattern accountsPattern = Pattern.compile("\"accounts\":\\[(.*)\\],\"savingsAccounts\"");
-        Matcher accountsMatcher = accountsPattern.matcher(response);
-        String accountsInfo;
-        if (accountsMatcher.find()) {
-            accountsInfo = accountsMatcher.group(1);
+    private List<String> readBankAccountsInfoFromResponse(String response) throws BankConnectionException {
+        Pattern bankAccountsPattern = Pattern.compile("\"accounts\":\\[(.*)\\],\"savingsAccounts\"");
+        Matcher bankAccountsMatcher = bankAccountsPattern.matcher(response);
+        String bankAccountsInfo;
+        if (bankAccountsMatcher.find()) {
+            bankAccountsInfo = bankAccountsMatcher.group(1);
         }
         else {
             throw new BankConnectionException();
         }
-        return Arrays.asList(accountsInfo.split("\\},"));
+        return Arrays.asList(bankAccountsInfo.split("\\},"));
     }
 
-    private List<BankAccountData> extractAccountsDatafromAccountsInfoList(List<String> accountsInfoList)
+    private List<BankAccountData> extractBankAccountsDatafromBankAccountsInfoList(List<String> bankAccountsInfoList)
             throws BankConnectionException {
         List<BankAccountData> bankAccountsData = new ArrayList<>();
 
-        Pattern accountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
-        Pattern accountsNumbersPattern = Pattern.compile("\"nrb\":\"(.*)\",\"name\"");
-        Pattern accountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
-        Pattern accountsCurrenciesPattern = Pattern.compile("\"currency\":\"(.*)\",\"version\"");
+        Pattern bankAccountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
+        Pattern bankAccountsNumbersPattern = Pattern.compile("\"nrb\":\"(.*)\",\"name\"");
+        Pattern bankAccountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
+        Pattern bankAccountsCurrenciesPattern = Pattern.compile("\"currency\":\"(.*)\",\"version\"");
 
-        for (String accountInfo : accountsInfoList) {
+        for (String bankAccountInfo : bankAccountsInfoList) {
             BankAccountData bankAccount = new BankAccountData();
 
-            Matcher accountsNamesMatcher = accountsNamesPattern.matcher(accountInfo);
-            Matcher accountsNumbersMatcher = accountsNumbersPattern.matcher(accountInfo);
-            Matcher accountsBalancesMatcher = accountsBalancesPattern.matcher(accountInfo);
-            Matcher accountsCurrenciesMatcher = accountsCurrenciesPattern.matcher(accountInfo);
+            Matcher bankAccountsNamesMatcher = bankAccountsNamesPattern.matcher(bankAccountInfo);
+            Matcher bankAccountsNumbersMatcher = bankAccountsNumbersPattern.matcher(bankAccountInfo);
+            Matcher bankAccountsBalancesMatcher = bankAccountsBalancesPattern.matcher(bankAccountInfo);
+            Matcher bankAccountsCurrenciesMatcher = bankAccountsCurrenciesPattern.matcher(bankAccountInfo);
 
-            if (accountsNamesMatcher.find()) {
-                bankAccount.setAccountName(accountsNamesMatcher.group(1));
+            if (bankAccountsNamesMatcher.find()) {
+                bankAccount.setAccountName(bankAccountsNamesMatcher.group(1));
             }
             else {
                 throw new BankConnectionException();
             }
 
-            if (accountsNumbersMatcher.find()) {
-                Stream<String> accountNumberStream = Arrays.stream(accountsNumbersMatcher.group(1).split(""));
+            if (bankAccountsNumbersMatcher.find()) {
+                Stream<String> bankAccountNumberStream = Arrays.stream(bankAccountsNumbersMatcher.group(1).split(""));
                 try {
-                    int[] accountNumberIntArr = accountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
-                    bankAccount.setAccountNumber(accountNumberIntArr);
+                    int[] bankAccountNumberIntArr = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+                    bankAccount.setAccountNumber(bankAccountNumberIntArr);
                 } catch (NumberFormatException e) {
                     throw new BankConnectionException();
                 }
@@ -106,15 +106,15 @@ public class SimpleBankAccountScraper implements BankAccountScraper {
                 throw new BankConnectionException();
             }
 
-            if (accountsBalancesMatcher.find()) {
-                bankAccount.setAccountBalance(new BigDecimal(accountsBalancesMatcher.group(1)));
+            if (bankAccountsBalancesMatcher.find()) {
+                bankAccount.setAccountBalance(new BigDecimal(bankAccountsBalancesMatcher.group(1)));
             }
             else {
                 throw new BankConnectionException();
             }
 
-            if (accountsCurrenciesMatcher.find()) {
-                bankAccount.setAccountCurrency(accountsCurrenciesMatcher.group(1));
+            if (bankAccountsCurrenciesMatcher.find()) {
+                bankAccount.setAccountCurrency(bankAccountsCurrenciesMatcher.group(1));
             }
             else {
                 throw new BankConnectionException();

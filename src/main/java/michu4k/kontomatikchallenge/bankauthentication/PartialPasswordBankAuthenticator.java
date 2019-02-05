@@ -33,20 +33,20 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     }
 
     @Override
-    public BankSession logIntoAccount(UserCredentials userCredentials)
+    public BankSession logIntoBankAccount(UserCredentials userCredentials)
             throws BankConnectionException, BadCredentialsException {
-        String loginResponse = typeLogin(userCredentials);
+        String loginResponse = enterLogin(userCredentials);
         int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
 
         // entered password is shorter than expected
-        if(passwordKeysIntArr[passwordKeysIntArr.length-1] > userCredentials.getPasswordLength()) {
+        if (passwordKeysIntArr[passwordKeysIntArr.length-1] > userCredentials.getPasswordLength()) {
             throw new BadPasswordException();
         }
 
-        return sendPasswordAndAvatar(passwordKeysIntArr, userCredentials);
+        return enterPasswordAndAvatar(passwordKeysIntArr, userCredentials);
     }
 
-    private String typeLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException {
+    private String enterLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException {
         URL loginSiteUrl = null;
         try {
             loginSiteUrl = new URL(LOGIN_SITE_URL);
@@ -71,21 +71,21 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
         return passwordPage.getWebResponse().getContentAsString();
     }
 
-    private BankSession sendPasswordAndAvatar(int[] passwordKeysIntArr, UserCredentials userCredentials)
+    private BankSession enterPasswordAndAvatar(int[] passwordKeysIntArr, UserCredentials userCredentials)
             throws BankConnectionException, BadCredentialsException {
-        String passAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
+        String passwordAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
         URL passwordAndAvatarUrl = null;
         try {
             passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        WebRequest passAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
-                passAndAvatarSendRequestBody);
+        WebRequest passwordAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
+                passwordAndAvatarSendRequestBody);
 
         Page afterLoginPage;
         try {
-            afterLoginPage = webClient.getPage(passAndAvatarSendRequest);
+            afterLoginPage = webClient.getPage(passwordAndAvatarSendRequest);
         } catch (FailingHttpStatusCodeException e) {
             e.printStackTrace();
             throw new BadCredentialsException();
@@ -130,20 +130,20 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     }
 
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
-        StringBuilder maskedPassBuilder = new StringBuilder("{\"login\":\"");
-        maskedPassBuilder.append(userCredentials.getLogin())
+        StringBuilder maskedPasswordBuilder = new StringBuilder("{\"login\":\"");
+        maskedPasswordBuilder.append(userCredentials.getLogin())
                 .append("\",\"maskedPassword\":{");
-        for (int passKeyIdx : passwordKeysIntArr) {
-            maskedPassBuilder.append("\"")
-                    .append(passKeyIdx)
+        for (int passwordKeyIdx : passwordKeysIntArr) {
+            maskedPasswordBuilder.append("\"")
+                    .append(passwordKeyIdx)
                     .append("\":\"")
-                    .append(userCredentials.getPassword().charAt(passKeyIdx - 1))
+                    .append(userCredentials.getPassword().charAt(passwordKeyIdx - 1))
                     .append("\",");
         }
-        maskedPassBuilder.delete(maskedPassBuilder.length() - 1, maskedPassBuilder.length())
+        maskedPasswordBuilder.delete(maskedPasswordBuilder.length() - 1, maskedPasswordBuilder.length())
                 .append("},\"avatarId\":")
                 .append(userCredentials.getAvatarId())
                 .append(",\"loginScopeType\":\"WWW\"}");
-        return  maskedPassBuilder.toString();
+        return  maskedPasswordBuilder.toString();
     }
 }

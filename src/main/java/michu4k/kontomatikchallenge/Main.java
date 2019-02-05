@@ -49,7 +49,7 @@ public class Main {
 
         bankAuthenticator = new PartialPasswordBankAuthenticator(webClient);
         try {
-            bankSession = bankAuthenticator.logIntoAccount(userCredentials);
+            bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
         } catch (BankConnectionException e) {
             e.printStackTrace();
             ErrorsPrinter.printConnectionError();
@@ -70,13 +70,13 @@ public class Main {
 
         bankAccountScraper = new SimpleBankAccountScraper(webClient);
         try {
-            bankAccountsData = bankAccountScraper.scrapeAccounts(bankSession);
+            bankAccountsData = bankAccountScraper.scrapeBankAccounts(bankSession);
         } catch (BankConnectionException e) {
             e.printStackTrace();
             ErrorsPrinter.printConnectionError();
             System.exit(1);
         }
 
-        UserInterface.printAccountsBalance(bankAccountsData);
+        UserInterface.printBankAccountsBalance(bankAccountsData);
     }
 }

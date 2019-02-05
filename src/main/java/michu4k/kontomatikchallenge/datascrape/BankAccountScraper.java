@@ -7,5 +7,5 @@ import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
 import java.util.List;
 
 public interface BankAccountScraper {
-    List<BankAccountData> scrapeAccounts(BankSession bankSession) throws BankConnectionException;
+    List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException;
 }

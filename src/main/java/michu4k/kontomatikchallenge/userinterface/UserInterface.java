@@ -104,20 +104,20 @@ public class UserInterface {
         return input.nextLine();
     }
 
-    public static void printAccountsBalance(List<BankAccountData> bankAccountsData) {
+    public static void printBankAccountsBalance(List<BankAccountData> bankAccountsData) {
         System.out.println(OUTPUT_MSG_HEADER);
-        for (int accountIdx = 0; accountIdx < bankAccountsData.size(); accountIdx++) {
+        for (int bankAccountIdx = 0; bankAccountIdx < bankAccountsData.size(); bankAccountIdx++) {
             System.out.println(new StringBuilder("#")
-                    .append(accountIdx)
+                    .append(bankAccountIdx)
                     .append("\naccount name: ")
-                    .append(bankAccountsData.get(accountIdx).getAccountName())
+                    .append(bankAccountsData.get(bankAccountIdx).getAccountName())
                     .append("\naccount number: ")
-                    .append(Arrays.toString(bankAccountsData.get(accountIdx)
+                    .append(Arrays.toString(bankAccountsData.get(bankAccountIdx)
                             .getAccountNumber()).replaceAll("\\D", ""))
                     .append("\naccount balance: ")
-                    .append(bankAccountsData.get(accountIdx).getAccountBalance())
+                    .append(bankAccountsData.get(bankAccountIdx).getAccountBalance())
                     .append(" ")
-                    .append(bankAccountsData.get(accountIdx).getAccountCurrency())
+                    .append(bankAccountsData.get(bankAccountIdx).getAccountCurrency())
                     .toString()
             );
         }
