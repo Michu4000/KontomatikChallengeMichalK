@@ -1,5 +1,9 @@
 package michu4k.kontomatikchallenge.userinterface;
 
+import michu4k.kontomatikchallenge.datastructures.BankAccountData;
+import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -7,12 +11,54 @@ public class UserInterface {
     private final static String ASK_LOGIN_MSG = "Type your login:";
     private final static String ASK_PASSWORD_MSG = "Type your password:";
     private final static String ASK_AVATAR_MSG = "Type your avatar id number:";
-    private final static String CONNECTION_ERROR_MSG = "Connection error.";
-    private final static String BAD_LOGIN_MSG = "Bad login.";
-    private final static String BAD_PASSWORD_MSG = "Bad password.";
-    private final static String BAD_CREDENTIALS_MSG = "Bad credentials.";
-    private final static String ARGUMENT_ERROR_MSG = "Bad arguments. Usage: Main [login] [password] [avatarId]";
     private final static String OUTPUT_MSG_HEADER = "\nNEST ACCOUNTS BALANCES:";
+
+    public static UserCredentials findOutUserCredentials(String[] args) {
+        UserCredentials userCredentials = new UserCredentials();
+
+        switch (args.length) {
+            case 0:
+                // ask for login, password, avatarId
+                userCredentials.setLogin(UserInterface.askForLogin());
+                userCredentials.setPassword(UserInterface.askForPassword());
+                userCredentials.setAvatarId(UserInterface.askForAvatar());
+                break;
+
+            case 1:
+                // ask for password and avatarId
+                userCredentials.setLogin(args[0]);
+                userCredentials.setPassword(UserInterface.askForPassword());
+                userCredentials.setAvatarId(UserInterface.askForAvatar());
+                break;
+
+            case 2:
+                // ask only for avatarId
+                userCredentials.setLogin(args[0]);
+                userCredentials.setPassword(args[1]);
+                userCredentials.setAvatarId(UserInterface.askForAvatar());
+                break;
+
+            case 3:
+                // don't ask - everything is in commandline arguments
+                userCredentials.setLogin(args[0]);
+                userCredentials.setPassword(args[1]);
+                userCredentials.setAvatarId(Integer.parseInt(args[2]));
+                break;
+
+            default:
+                ErrorsPrinter.printArgumentsError();
+                System.exit(2); // terminate program with error status
+                break;
+        }
+
+        // check for blank arguments/inputs
+        if (!userCredentials.isEverythingFilled()) {
+            ErrorsPrinter.printArgumentsError();
+            System.exit(2);
+        }
+
+        return userCredentials;
+    }
 
     public static String askForLogin() {
         System.out.println(ASK_LOGIN_MSG);
@@ -24,9 +70,17 @@ public class UserInterface {
         return readUserAnswer();
     }
 
-    public static String askForAvatar() {
+    public static int askForAvatar() {
         System.out.println(ASK_AVATAR_MSG);
-        return readUserAnswer();
+        int userId = -1;
+        try {
+            userId = Integer.parseInt(readUserAnswer());
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+            ErrorsPrinter.printBadAvatarIdError();
+            System.exit(2);
+        }
+        return userId;
     }
 
     private static String readUserAnswer() {
@@ -34,42 +88,19 @@ public class UserInterface {
         return input.nextLine();
     }
 
-    public static void printArgumentsError() {
-        System.out.println(ARGUMENT_ERROR_MSG);
-    }
-
-    public static void printConnectionError(){
-        System.out.println(CONNECTION_ERROR_MSG);
-    }
-
-    public static void printBadLoginError(){
-        System.out.println(BAD_LOGIN_MSG);
-    }
-
-    public static void printBadPasswordError(){
-        System.out.println(BAD_PASSWORD_MSG);
-    }
-
-    public static void printCredentialsError(){
-        System.out.println(BAD_CREDENTIALS_MSG);
-    }
-
-    public static void printAccountsBalance(List<String> accountsNames,
-                                     List<String> accountsNumbers,
-                                     List<String> accountsBalances,
-                                     List<String> accountsCurrencies) {
+    public static void printAccountsBalance(List<BankAccountData> bankAccountsData) {
         System.out.println(OUTPUT_MSG_HEADER);
-        for (int accountIdx = 0; accountIdx < accountsNames.size(); accountIdx++) {
+        for (int accountIdx = 0; accountIdx < bankAccountsData.size(); accountIdx++) {
             System.out.println(new StringBuilder("#")
                     .append(accountIdx)
                     .append("\naccount name: ")
-                    .append(accountsNames.get(accountIdx))
+                    .append(bankAccountsData.get(accountIdx).getAccountName())
                     .append("\naccount number: ")
-                    .append(accountsNumbers.get(accountIdx))
+                    .append(Arrays.toString(bankAccountsData.get(accountIdx).getAccountNumber()).replaceAll("\\D", ""))
                     .append("\naccount balance: ")
-                    .append(accountsBalances.get(accountIdx))
+                    .append(bankAccountsData.get(accountIdx).getAccountBalance())
                     .append(" ")
-                    .append(accountsCurrencies.get(accountIdx))
+                    .append(bankAccountsData.get(accountIdx).getAccountCurrency())
                     .toString()
             );
         }

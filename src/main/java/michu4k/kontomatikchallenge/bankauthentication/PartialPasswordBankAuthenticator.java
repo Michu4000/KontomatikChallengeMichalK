@@ -5,7 +5,9 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
-import michu4k.kontomatikchallenge.userinterface.UserInterface;
+import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.userinterface.ErrorsPrinter;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import java.io.IOException;
@@ -21,32 +23,27 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
     private final static String PASSWORD_AND_AVATAR_SITE_URL =
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
-    private String login;
-    private String password;
-    private String avatarId;
+    private UserCredentials userCredentials;
     private WebClient webClient;
-    private String sessionToken;
-    private String userId;
+    private BankSession bankSession;
 
-    public PartialPasswordBankAuthenticator(String login, String pass, String avatarId, WebClient webClient) {
-        this.login = login;
-        this.password = pass;
-        this.avatarId = avatarId;
+    public PartialPasswordBankAuthenticator(UserCredentials userCredentials, WebClient webClient) {
+        this.userCredentials = userCredentials;
         this.webClient = webClient;
     }
 
     @Override
-    public void logIntoAccount() {
+    public BankSession logIntoAccount() {
         String loginResponse = typeLogin();
         int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
 
         // entered password is shorter than expected
-        if(passwordKeysIntArr[passwordKeysIntArr.length-1] > password.length()) {
-            UserInterface.printBadPasswordError();
+        if(passwordKeysIntArr[passwordKeysIntArr.length-1] > userCredentials.getPasswordLength()) {
+            ErrorsPrinter.printBadPasswordError();
             System.exit(2);
-        }
+        } // TODO throw exception
 
-        sendPasswordAndAvatar(passwordKeysIntArr);
+        return sendPasswordAndAvatar(passwordKeysIntArr);
     }
 
     private String typeLogin() {
@@ -57,7 +54,7 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             e.printStackTrace();
         }
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(login)
+                .append(userCredentials.getLogin())
                 .append("\"}").toString();
         WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
@@ -66,17 +63,17 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             passwordPage = webClient.getPage(loginSendRequest);
         } catch (FailingHttpStatusCodeException e) {
             e.printStackTrace();
-            UserInterface.printBadLoginError();
+            ErrorsPrinter.printBadLoginError();
             System.exit(2);
         } catch (IOException e) {
             e.printStackTrace();
-            UserInterface.printConnectionError();
+            ErrorsPrinter.printConnectionError();
             System.exit(1);
         }
         return passwordPage.getWebResponse().getContentAsString();
     }
 
-    private void sendPasswordAndAvatar(int[] passwordKeysIntArr) {
+    private BankSession sendPasswordAndAvatar(int[] passwordKeysIntArr) {
         String passAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr);
         URL passwordAndAvatarUrl = null;
         try {
@@ -92,25 +89,28 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             afterLoginPage = webClient.getPage(passAndAvatarSendRequest);
         } catch (FailingHttpStatusCodeException e) {
             e.printStackTrace();
-            UserInterface.printCredentialsError();
+            ErrorsPrinter.printCredentialsError();
             System.exit(2);
         } catch (IOException e2) {
             e2.printStackTrace();
-            UserInterface.printConnectionError();
+            ErrorsPrinter.printConnectionError();
             System.exit(1);
         }
         String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
 
+        bankSession = new BankSession();
+
         Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
         Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
         if (userIdMatcher.find()) {
-            userId = userIdMatcher.group(1);
+            bankSession.setUserId(Integer.parseInt(userIdMatcher.group(1)));
         }
         else {
-            UserInterface.printConnectionError();
+            ErrorsPrinter.printConnectionError();
             System.exit(1);
         }
-        sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
+        bankSession.setSessionToken(afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token"));
+        return bankSession;
     }
 
     private int[] extractPartialPasswordKeysFromResponse(String loginResponse) {
@@ -121,7 +121,7 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             passwordKeys = passwordKeysMatcher.group(1);
         }
         else {
-            UserInterface.printConnectionError();
+            ErrorsPrinter.printConnectionError();
             System.exit(1);
         }
         String[] passwordKeysStrArr = passwordKeys.split(",");
@@ -131,29 +131,19 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
 
     private String buildMaskedPassword(int[] passwordKeysIntArr) {
         StringBuilder maskedPassBuilder = new StringBuilder("{\"login\":\"");
-        maskedPassBuilder.append(login)
+        maskedPassBuilder.append(userCredentials.getLogin())
                 .append("\",\"maskedPassword\":{");
         for (int passKeyIdx : passwordKeysIntArr) {
             maskedPassBuilder.append("\"")
                     .append(passKeyIdx)
                     .append("\":\"")
-                    .append(password.charAt(passKeyIdx - 1))
+                    .append(userCredentials.getPassword().charAt(passKeyIdx - 1))
                     .append("\",");
         }
         maskedPassBuilder.delete(maskedPassBuilder.length() - 1, maskedPassBuilder.length())
                 .append("},\"avatarId\":")
-                .append(avatarId)
+                .append(userCredentials.getAvatarId())
                 .append(",\"loginScopeType\":\"WWW\"}");
         return  maskedPassBuilder.toString();
-    }
-
-    @Override
-    public String getSessionToken() {
-        return sessionToken;
-    }
-
-    @Override
-    public String getUserId() {
-        return userId;
     }
 }

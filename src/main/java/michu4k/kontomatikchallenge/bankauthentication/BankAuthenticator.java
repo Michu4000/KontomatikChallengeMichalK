@@ -1,9 +1,7 @@
 package michu4k.kontomatikchallenge.bankauthentication;
 
+import michu4k.kontomatikchallenge.datastructures.BankSession;
+
 public interface BankAuthenticator {
-    void logIntoAccount();
-
-    String getSessionToken();
-
-    String getUserId();
+    BankSession logIntoAccount();
 }

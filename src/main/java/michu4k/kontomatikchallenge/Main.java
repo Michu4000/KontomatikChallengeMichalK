@@ -9,113 +9,45 @@
 package michu4k.kontomatikchallenge;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.ProxyConfig;
 
 import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
 import michu4k.kontomatikchallenge.bankauthentication.PartialPasswordBankAuthenticator;
-import michu4k.kontomatikchallenge.datascrape.AccountScraper;
-import michu4k.kontomatikchallenge.datascrape.SimpleAccountScraper;
+import michu4k.kontomatikchallenge.datascrape.BankAccountScraper;
+import michu4k.kontomatikchallenge.datascrape.SimpleBankAccountScraper;
+import michu4k.kontomatikchallenge.datastructures.BankAccountData;
+import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
+import michu4k.kontomatikchallenge.utils.WebClientFactory;
 
 import java.util.List;
 
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
-    private static String login;
-    private static String password ;
-    private static String avatarId;
+    private static UserCredentials userCredentials;
     private static WebClient webClient;
-    private static String sessionToken;
-    private static String userId;
-    private static List<String> accountsNames;
-    private static List<String> accountsNumbers;
-    private static List<String> accountsBalances;
-    private static List<String> accountsCurrencies;
+    private static BankAuthenticator bankAuthenticator;
+    private static BankSession bankSession;
+    private static BankAccountScraper bankAccountScraper;
+    private static List<BankAccountData> bankAccountsData;
 
     public static void main(String[] args) {
-        checkArguments(args);
-        if(!DEBUG_MODE) {
-            createAndSetWebClient();
+        userCredentials = UserInterface.findOutUserCredentials(args);
+
+        if (!DEBUG_MODE) {
+            webClient = WebClientFactory.getWebClient();
         }
         else {
-            createAndSetWebClientWithProxy();
-        }
-        logIn();
-        scrapeAccountsData();
-        UserInterface.printAccountsBalance(accountsNames, accountsNumbers, accountsBalances, accountsCurrencies);
-    }
-
-    private static void checkArguments(String[] args) {
-        switch (args.length) {
-            case 0:
-                // ask for login, password, avatarId
-                login = UserInterface.askForLogin();
-                password = UserInterface.askForPassword();
-                avatarId = UserInterface.askForAvatar();
-                break;
-
-            case 1:
-                // ask for password and avatarId
-                login = args[0];
-                password = UserInterface.askForPassword();
-                avatarId = UserInterface.askForAvatar();
-                break;
-
-            case 2:
-                // ask only for avatarId
-                login = args[0];
-                password = args[1];
-                avatarId = UserInterface.askForAvatar();
-                break;
-
-            case 3:
-                // don't ask - everything is in commandline arguments
-                login = args[0];
-                password = args[1];
-                avatarId = args[2];
-                break;
-
-            default:
-                UserInterface.printArgumentsError();
-                System.exit(2); // terminate program with error status
-                break;
+            webClient = WebClientFactory.getWebClientWithProxy();
         }
 
-        // check for blank arguments/inputs
-        if(login.length() == 0 || password.length() == 0 || avatarId.length() == 0) {
-            UserInterface.printArgumentsError();
-            System.exit(2);
-        }
-    }
+        bankAuthenticator = new PartialPasswordBankAuthenticator(userCredentials, webClient);
+        bankSession = bankAuthenticator.logIntoAccount();
 
-    private static void createAndSetWebClient() {
-        webClient = new WebClient();
-        webClient.getOptions().setJavaScriptEnabled(false);
-        webClient.getOptions().setCssEnabled(false);
-    }
+        bankAccountScraper = new SimpleBankAccountScraper(bankSession, webClient);
+        bankAccountsData = bankAccountScraper.scrapeAccounts();
 
-    private static void createAndSetWebClientWithProxy() {
-        createAndSetWebClient();
-        ProxyConfig proxyConfig = new ProxyConfig("127.0.0.1", 8080);
-        webClient.getOptions().setProxyConfig(proxyConfig);
-        webClient.getOptions().setUseInsecureSSL(true);
-    }
-
-    private static void logIn() {
-        BankAuthenticator bankAuthenticator =
-                new PartialPasswordBankAuthenticator(login, password, avatarId, webClient);
-        bankAuthenticator.logIntoAccount();
-        sessionToken = bankAuthenticator.getSessionToken();
-        userId = bankAuthenticator.getUserId();
-    }
-
-    private static void scrapeAccountsData() {
-        AccountScraper accountScraper = new SimpleAccountScraper(sessionToken, userId, webClient);
-        accountScraper.scrapeAccounts();
-        accountsNames = accountScraper.getAccountsNames();
-        accountsNumbers = accountScraper.getAccountsNumbers();
-        accountsBalances = accountScraper.getAccountsBalances();
-        accountsCurrencies = accountScraper.getAccountsCurrencies();
+        UserInterface.printAccountsBalance(bankAccountsData);
     }
 }
