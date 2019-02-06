@@ -17,10 +17,7 @@ import michu4k.kontomatikchallenge.datascrape.NestBankAccountScraper;
 import michu4k.kontomatikchallenge.datastructures.BankAccountData;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
-import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
-import michu4k.kontomatikchallenge.exceptions.BadLoginException;
-import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
-import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
+import michu4k.kontomatikchallenge.exceptions.*;
 import michu4k.kontomatikchallenge.userinterface.ErrorsPrinter;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
@@ -31,7 +28,16 @@ public class Main {
     private final static boolean DEBUG_MODE = false;
 
     public static void main(String[] args) {
-        UserCredentials userCredentials = UserInterface.findOutUserCredentials(args);
+        UserCredentials userCredentials = null;
+        try {
+            userCredentials = UserInterface.findOutUserCredentials(args);
+        } catch (BadArgumentsException e) {
+            if(DEBUG_MODE) {
+                e.printStackTrace();
+            }
+            ErrorsPrinter.printArgumentsError();
+            System.exit(2);
+        }
 
         WebClient webClient;
         if (!DEBUG_MODE) {

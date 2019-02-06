@@ -6,7 +6,6 @@ public class ErrorsPrinter {
     private final static String BAD_CREDENTIALS_MSG = "Bad credentials.";
     private final static String BAD_LOGIN_MSG = "Bad login.";
     private final static String BAD_PASSWORD_MSG = "Bad password.";
-    private final static String BAD_AVATAR_ID_MSG = "Bad avatar id.";
 
     public static void printArgumentsError() {
         System.out.println(ARGUMENT_ERROR_MSG);
@@ -26,9 +25,5 @@ public class ErrorsPrinter {
 
     public static void printBadPasswordError(){
         System.out.println(BAD_PASSWORD_MSG);
-    }
-
-    public static void printBadAvatarIdError() {
-        System.out.println(BAD_AVATAR_ID_MSG);
     }
 }
