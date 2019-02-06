@@ -55,7 +55,7 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
             e.printStackTrace();
         }
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(userCredentials.getLogin()) //TODO escape characters which can allow dependency injection attack like " { } etc.
+                .append(userCredentials.login) //TODO escape characters which can allow dependency injection attack like " { } etc.
                 .append("\"}").toString();
         WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
@@ -102,13 +102,12 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
         Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
         if (userIdMatcher.find()) {
-            bankSession.setUserId(Integer.parseInt(userIdMatcher.group(1)));
+            bankSession.userId = Integer.parseInt(userIdMatcher.group(1));
         }
         else {
             throw new BankConnectionException();
         }
-        bankSession.setSessionToken(afterLoginPage.getWebResponse().
-                getResponseHeaderValue("Session-Token"));
+        bankSession.sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
         return bankSession;
     }
 
@@ -133,18 +132,18 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
 
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
         StringBuilder maskedPasswordBuilder = new StringBuilder("{\"login\":\"");
-        maskedPasswordBuilder.append(userCredentials.getLogin()) //TODO escape characters which can allow dependency injection attack like " { } etc.
+        maskedPasswordBuilder.append(userCredentials.login) //TODO escape characters which can allow dependency injection attack like " { } etc.
                 .append("\",\"maskedPassword\":{");
         for (int passwordKeyIdx : passwordKeysIntArr) {
             maskedPasswordBuilder.append("\"")
                     .append(passwordKeyIdx)
                     .append("\":\"")
-                    .append(userCredentials.getPassword().charAt(passwordKeyIdx - 1)) //TODO escape characters which can allow dependency injection attack like " { } etc.
+                    .append(userCredentials.password.charAt(passwordKeyIdx - 1)) //TODO escape characters which can allow dependency injection attack like " { } etc.
                     .append("\",");
         }
         maskedPasswordBuilder.delete(maskedPasswordBuilder.length() - 1, maskedPasswordBuilder.length())
                 .append("},\"avatarId\":")
-                .append(userCredentials.getAvatarId())
+                .append(userCredentials.avatarId)
                 .append(",\"loginScopeType\":\"WWW\"}");
         return  maskedPasswordBuilder.toString();
     }

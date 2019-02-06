@@ -17,10 +17,10 @@ public class UserInterface {
 
         UserCredentials userCredentials = new UserCredentials();
 
-        userCredentials.setLogin(args[0]);
-        userCredentials.setPassword(args[1]);
+        userCredentials.login = args[0];
+        userCredentials.password = args[1];
         try {
-            userCredentials.setAvatarId(Integer.parseInt(args[2]));
+            userCredentials.avatarId = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
             BadArgumentsException badArgumentsException = new BadArgumentsException();
             badArgumentsException.setStackTrace(e.getStackTrace());
@@ -41,14 +41,14 @@ public class UserInterface {
             System.out.println(new StringBuilder("#")
                     .append(bankAccountIdx)
                     .append("\naccount name: ")
-                    .append(bankAccountsData.get(bankAccountIdx).getAccountName())
+                    .append(bankAccountsData.get(bankAccountIdx).accountName)
                     .append("\naccount number: ")
                     .append(Arrays.toString(bankAccountsData.get(bankAccountIdx)
-                            .getAccountNumber()).replaceAll("\\D", ""))
+                            .accountNumber).replaceAll("\\D", ""))
                     .append("\naccount balance: ")
-                    .append(bankAccountsData.get(bankAccountIdx).getAccountBalance())
+                    .append(bankAccountsData.get(bankAccountIdx).accountBalance)
                     .append(" ")
-                    .append(bankAccountsData.get(bankAccountIdx).getAccountCurrency())
+                    .append(bankAccountsData.get(bankAccountIdx).accountCurrency)
                     .toString()
             );
         }

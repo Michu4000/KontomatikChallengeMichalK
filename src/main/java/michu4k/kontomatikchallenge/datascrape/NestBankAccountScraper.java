@@ -36,14 +36,14 @@ public class NestBankAccountScraper implements BankAccountScraper {
         //TODO throw this exception higher, then catch and show internal application error etc.
         try {
             bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
-                    .append(bankSession.getUserId())
+                    .append(bankSession.userId)
                     .append(BANK_ACCOUNTS_DATA_SITE_URL_END)
                     .toString());
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         WebRequest checkBankAccountsDataRequest = WebRequestFactory.produceRequestGet(bankAccountsDataUrl,
-                bankSession.getSessionToken());
+                bankSession.sessionToken);
 
         Page bankAccountsDataPage;
         try {
@@ -88,7 +88,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
             Matcher bankAccountsCurrenciesMatcher = bankAccountsCurrenciesPattern.matcher(bankAccountInfo);
 
             if (bankAccountsNamesMatcher.find()) {
-                bankAccount.setAccountName(bankAccountsNamesMatcher.group(1));
+                bankAccount.accountName = bankAccountsNamesMatcher.group(1);
             }
             else {
                 throw new BankConnectionException();
@@ -98,7 +98,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
                 Stream<String> bankAccountNumberStream = Arrays.stream(bankAccountsNumbersMatcher.group(1).split(""));
                 try {
                     int[] bankAccountNumberIntArr = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
-                    bankAccount.setAccountNumber(bankAccountNumberIntArr);
+                    bankAccount.accountNumber = bankAccountNumberIntArr;
                 } catch (NumberFormatException e) {
                     //TODO include stack trace in new exception
                     throw new BankConnectionException();
@@ -109,14 +109,14 @@ public class NestBankAccountScraper implements BankAccountScraper {
             }
 
             if (bankAccountsBalancesMatcher.find()) {
-                bankAccount.setAccountBalance(new BigDecimal(bankAccountsBalancesMatcher.group(1)));
+                bankAccount.accountBalance = new BigDecimal(bankAccountsBalancesMatcher.group(1));
             }
             else {
                 throw new BankConnectionException();
             }
 
             if (bankAccountsCurrenciesMatcher.find()) {
-                bankAccount.setAccountCurrency(bankAccountsCurrenciesMatcher.group(1));
+                bankAccount.accountCurrency = bankAccountsCurrenciesMatcher.group(1);
             }
             else {
                 throw new BankConnectionException();
