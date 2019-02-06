@@ -29,16 +29,7 @@ public class Main {
     private final static boolean DEBUG_MODE = false;
 
     public static void main(String[] args) {
-        UserCredentials userCredentials = null;
-        try {
-            userCredentials = UserInterface.findOutUserCredentials(args);
-        } catch (BadArgumentsException e) {
-            if(DEBUG_MODE) {
-                e.printStackTrace();
-            }
-            ErrorsPrinter.printArgumentsError();
-            System.exit(2);
-        }
+        UserCredentials userCredentials = fetchCredentialsFromUserInterface(args);
 
         WebClient webClient;
         if (!DEBUG_MODE) {
@@ -49,6 +40,30 @@ public class Main {
         }
 
         BankAuthenticator bankAuthenticator = new NestBankPartialPasswordAuthenticator(webClient);
+        BankSession bankSession = fetchBankSessionFromBankAuthenticator(bankAuthenticator, userCredentials);
+
+        BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
+        List<BankAccountData> bankAccountsData = fetchBankAccountsDataFromBankAccountScrapper(bankAccountScraper, bankSession);
+
+        UserInterface.printBankAccountsBalance(bankAccountsData);
+    }
+
+    private static UserCredentials fetchCredentialsFromUserInterface(String[] args) {
+        UserCredentials userCredentials = null;
+        try {
+            userCredentials = UserInterface.findOutUserCredentials(args);
+        } catch (BadArgumentsException e) {
+            if(DEBUG_MODE) {
+                e.printStackTrace();
+            }
+            ErrorsPrinter.printArgumentsError();
+            System.exit(2);
+        }
+        return userCredentials;
+    }
+
+    private static BankSession fetchBankSessionFromBankAuthenticator(BankAuthenticator bankAuthenticator,
+                                                                     UserCredentials userCredentials) {
         BankSession bankSession = null;
         try {
             bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
@@ -83,8 +98,11 @@ public class Main {
             ErrorsPrinter.printInternalApplictionError();
             System.exit(3);
         }
+        return bankSession;
+    }
 
-        BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
+    private static List<BankAccountData> fetchBankAccountsDataFromBankAccountScrapper(BankAccountScraper bankAccountScraper,
+                                                                                      BankSession bankSession) {
         List<BankAccountData> bankAccountsData = null;
         try {
             bankAccountsData = bankAccountScraper.scrapeBankAccounts(bankSession);
@@ -101,7 +119,6 @@ public class Main {
             ErrorsPrinter.printInternalApplictionError();
             System.exit(3);
         }
-
-        UserInterface.printBankAccountsBalance(bankAccountsData);
+        return bankAccountsData;
     }
 }
