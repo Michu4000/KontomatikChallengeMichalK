@@ -6,6 +6,7 @@ public class ErrorsPrinter {
     private final static String BAD_CREDENTIALS_MSG = "Bad credentials.";
     private final static String BAD_LOGIN_MSG = "Bad login.";
     private final static String BAD_PASSWORD_MSG = "Bad password.";
+    private final static String INTERNAL_ERROR_MSG = "Internal application error.";
 
     public static void printArgumentsError() {
         System.out.println(ARGUMENT_ERROR_MSG);
@@ -25,5 +26,9 @@ public class ErrorsPrinter {
 
     public static void printBadPasswordError(){
         System.out.println(BAD_PASSWORD_MSG);
+    }
+
+    public static void printInternalApplictionError() {
+        System.out.println(INTERNAL_ERROR_MSG);
     }
 }

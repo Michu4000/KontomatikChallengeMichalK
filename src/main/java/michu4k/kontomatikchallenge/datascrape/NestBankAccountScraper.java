@@ -31,17 +31,12 @@ public class NestBankAccountScraper implements BankAccountScraper {
     }
 
     @Override
-    public List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException {
-        URL bankAccountsDataUrl = null;
-        //TODO throw this exception higher, then catch and show internal application error etc.
-        try {
-            bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
+    public List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException, MalformedURLException {
+        URL bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
                     .append(bankSession.userId)
                     .append(BANK_ACCOUNTS_DATA_SITE_URL_END)
                     .toString());
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+
         WebRequest checkBankAccountsDataRequest = WebRequestFactory.produceRequestGet(bankAccountsDataUrl,
                 bankSession.sessionToken);
 
@@ -49,8 +44,9 @@ public class NestBankAccountScraper implements BankAccountScraper {
         try {
             bankAccountsDataPage = webClient.getPage(checkBankAccountsDataRequest);
         } catch (IOException e) {
-            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
-            throw new BankConnectionException();
+            BankConnectionException bankConnectionException = new BankConnectionException();
+            bankConnectionException.setStackTrace(e.getStackTrace());
+            throw bankConnectionException;
         }
         String checkBankAccountsDataResponse = bankAccountsDataPage.getWebResponse().getContentAsString();
         List<String> bankAccountsInfoList = readBankAccountsInfoFromResponse(checkBankAccountsDataResponse);
@@ -100,8 +96,9 @@ public class NestBankAccountScraper implements BankAccountScraper {
                     int[] bankAccountNumberIntArr = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
                     bankAccount.accountNumber = bankAccountNumberIntArr;
                 } catch (NumberFormatException e) {
-                    //TODO include stack trace in new exception
-                    throw new BankConnectionException();
+                    BankConnectionException bankConnectionException = new BankConnectionException();
+                    bankConnectionException.setStackTrace(e.getStackTrace());
+                    throw bankConnectionException;
                 }
             }
             else {

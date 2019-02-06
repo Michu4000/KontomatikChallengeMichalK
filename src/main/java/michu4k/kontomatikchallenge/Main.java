@@ -22,6 +22,7 @@ import michu4k.kontomatikchallenge.userinterface.ErrorsPrinter;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
 
+import java.net.MalformedURLException;
 import java.util.List;
 
 public class Main {
@@ -75,6 +76,12 @@ public class Main {
             }
             ErrorsPrinter.printBadCredentialsError();
             System.exit(2);
+        } catch (MalformedURLException e2) {
+            if (DEBUG_MODE) {
+                e2.printStackTrace();
+            }
+            ErrorsPrinter.printInternalApplictionError();
+            System.exit(3);
         }
 
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
@@ -87,6 +94,12 @@ public class Main {
             }
             ErrorsPrinter.printConnectionError();
             System.exit(1);
+        } catch (MalformedURLException e2) {
+            if (DEBUG_MODE) {
+                e2.printStackTrace();
+            }
+            ErrorsPrinter.printInternalApplictionError();
+            System.exit(3);
         }
 
         UserInterface.printBankAccountsBalance(bankAccountsData);

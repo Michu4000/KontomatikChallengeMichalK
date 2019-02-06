@@ -34,7 +34,7 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
 
     @Override
     public BankSession logIntoBankAccount(UserCredentials userCredentials)
-            throws BankConnectionException, BadCredentialsException {
+            throws BankConnectionException, BadCredentialsException, MalformedURLException {
         String loginResponse = enterLogin(userCredentials);
         int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
 
@@ -46,14 +46,9 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         return enterPasswordAndAvatar(passwordKeysIntArr, userCredentials);
     }
 
-    private String enterLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException {
-        URL loginSiteUrl = null;
-        //TODO throw this exception higher, then catch and show internal application error etc.
-        try {
-            loginSiteUrl = new URL(LOGIN_SITE_URL);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+    private String enterLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException, MalformedURLException {
+        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
+
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
                 .append(userCredentials.login) //TODO escape characters which can allow dependency injection attack like " { } etc.
                 .append("\"}").toString();
@@ -63,25 +58,22 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         try {
             passwordPage = webClient.getPage(loginSendRequest);
         } catch (FailingHttpStatusCodeException e) {
-            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
-            throw new BadLoginException();
-        } catch (IOException e) {
-            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
-            throw new BankConnectionException();
+            BadLoginException badLoginException = new BadLoginException();
+            badLoginException.setStackTrace(e.getStackTrace());
+            throw badLoginException;
+        } catch (IOException e2) {
+            BankConnectionException bankConnectionException = new BankConnectionException();
+            bankConnectionException.setStackTrace(e2.getStackTrace());
+            throw  bankConnectionException;
         }
         return passwordPage.getWebResponse().getContentAsString();
     }
 
     private BankSession enterPasswordAndAvatar(int[] passwordKeysIntArr, UserCredentials userCredentials)
-            throws BankConnectionException, BadCredentialsException {
+            throws BankConnectionException, BadCredentialsException, MalformedURLException {
         String passwordAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
-        URL passwordAndAvatarUrl = null;
-        //TODO throw this exception higher, then catch and show internal application error etc.
-        try {
-            passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
+        URL passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
+
         WebRequest passwordAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
                 passwordAndAvatarSendRequestBody);
 
@@ -89,11 +81,13 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         try {
             afterLoginPage = webClient.getPage(passwordAndAvatarSendRequest);
         } catch (FailingHttpStatusCodeException e) {
-            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
-            throw new BadCredentialsException();
+            BadCredentialsException badCredentialsException = new BadCredentialsException();
+            badCredentialsException.setStackTrace(e.getStackTrace());
+            throw badCredentialsException;
         } catch (IOException e2) {
-            e2.printStackTrace(); //TODO don't print stack trace, include it in new exception
-            throw new BankConnectionException();
+            BankConnectionException bankConnectionException = new BankConnectionException();
+            bankConnectionException.setStackTrace(e2.getStackTrace());
+            throw  bankConnectionException;
         }
         String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
 
