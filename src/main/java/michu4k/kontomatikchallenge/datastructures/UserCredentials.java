@@ -5,6 +5,7 @@ public class UserCredentials {
     private String password;
     private int avatarId;
 
+    //TODO unnecessary getters and setters
     public UserCredentials() {
         this.avatarId = -1;
     }

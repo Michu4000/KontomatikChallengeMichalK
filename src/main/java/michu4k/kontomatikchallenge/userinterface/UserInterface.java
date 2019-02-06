@@ -13,6 +13,7 @@ public class UserInterface {
     private final static String ASK_AVATAR_MSG = "Type your avatar id number:";
     private final static String OUTPUT_MSG_HEADER = "\nNEST ACCOUNTS BALANCES:";
 
+    //TODO too many features - either get args from cmd or ask user
     public static UserCredentials findOutUserCredentials(String[] args) {
         UserCredentials userCredentials = new UserCredentials();
 

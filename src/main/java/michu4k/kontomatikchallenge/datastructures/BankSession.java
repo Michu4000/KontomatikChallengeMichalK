@@ -4,6 +4,7 @@ public class BankSession {
     private String sessionToken;
     private int userId;
 
+    //TODO unnecessary getters and setters
     public String getSessionToken() {
         return sessionToken;
     }

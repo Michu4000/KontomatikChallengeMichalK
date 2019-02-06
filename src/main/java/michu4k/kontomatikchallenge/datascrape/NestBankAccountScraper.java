@@ -20,19 +20,20 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class SimpleBankAccountScraper implements BankAccountScraper {
+public class NestBankAccountScraper implements BankAccountScraper {
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_END = "/dashboard/www/config";
 
     private WebClient webClient;
 
-    public SimpleBankAccountScraper(WebClient webClient) {
+    public NestBankAccountScraper(WebClient webClient) {
         this.webClient = webClient;
     }
 
     @Override
     public List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException {
         URL bankAccountsDataUrl = null;
+        //TODO throw this exception higher, then catch and show internal application error etc.
         try {
             bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
                     .append(bankSession.getUserId())
@@ -48,7 +49,7 @@ public class SimpleBankAccountScraper implements BankAccountScraper {
         try {
             bankAccountsDataPage = webClient.getPage(checkBankAccountsDataRequest);
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
             throw new BankConnectionException();
         }
         String checkBankAccountsDataResponse = bankAccountsDataPage.getWebResponse().getContentAsString();
@@ -99,6 +100,7 @@ public class SimpleBankAccountScraper implements BankAccountScraper {
                     int[] bankAccountNumberIntArr = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
                     bankAccount.setAccountNumber(bankAccountNumberIntArr);
                 } catch (NumberFormatException e) {
+                    //TODO include stack trace in new exception
                     throw new BankConnectionException();
                 }
             }

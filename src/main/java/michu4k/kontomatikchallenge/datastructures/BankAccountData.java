@@ -8,6 +8,7 @@ public class BankAccountData {
     private BigDecimal accountBalance;
     private String accountCurrency;
 
+    //TODO unnecessary getters and setters
     public String getAccountName() {
         return accountName;
     }

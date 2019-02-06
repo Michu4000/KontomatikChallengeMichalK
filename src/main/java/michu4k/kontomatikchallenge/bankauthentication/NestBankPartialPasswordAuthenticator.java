@@ -21,14 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public class PartialPasswordBankAuthenticator implements BankAuthenticator {
+public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
     private final static String LOGIN_SITE_URL = "https://login.nestbank.pl/rest/v1/auth/checkLogin";
     private final static String PASSWORD_AND_AVATAR_SITE_URL =
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
     private WebClient webClient;
 
-    public PartialPasswordBankAuthenticator(WebClient webClient) {
+    public NestBankPartialPasswordAuthenticator(WebClient webClient) {
         this.webClient = webClient;
     }
 
@@ -48,13 +48,14 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
 
     private String enterLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException {
         URL loginSiteUrl = null;
+        //TODO throw this exception higher, then catch and show internal application error etc.
         try {
             loginSiteUrl = new URL(LOGIN_SITE_URL);
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(userCredentials.getLogin())
+                .append(userCredentials.getLogin()) //TODO escape characters which can allow dependency injection attack like " { } etc.
                 .append("\"}").toString();
         WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
@@ -62,10 +63,10 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
         try {
             passwordPage = webClient.getPage(loginSendRequest);
         } catch (FailingHttpStatusCodeException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
             throw new BadLoginException();
         } catch (IOException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
             throw new BankConnectionException();
         }
         return passwordPage.getWebResponse().getContentAsString();
@@ -75,6 +76,7 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
             throws BankConnectionException, BadCredentialsException {
         String passwordAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
         URL passwordAndAvatarUrl = null;
+        //TODO throw this exception higher, then catch and show internal application error etc.
         try {
             passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
         } catch (MalformedURLException e) {
@@ -87,10 +89,10 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
         try {
             afterLoginPage = webClient.getPage(passwordAndAvatarSendRequest);
         } catch (FailingHttpStatusCodeException e) {
-            e.printStackTrace();
+            e.printStackTrace(); //TODO don't print stack trace, include it in new exception
             throw new BadCredentialsException();
         } catch (IOException e2) {
-            e2.printStackTrace();
+            e2.printStackTrace(); //TODO don't print stack trace, include it in new exception
             throw new BankConnectionException();
         }
         String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
@@ -131,13 +133,13 @@ public class PartialPasswordBankAuthenticator implements BankAuthenticator {
 
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
         StringBuilder maskedPasswordBuilder = new StringBuilder("{\"login\":\"");
-        maskedPasswordBuilder.append(userCredentials.getLogin())
+        maskedPasswordBuilder.append(userCredentials.getLogin()) //TODO escape characters which can allow dependency injection attack like " { } etc.
                 .append("\",\"maskedPassword\":{");
         for (int passwordKeyIdx : passwordKeysIntArr) {
             maskedPasswordBuilder.append("\"")
                     .append(passwordKeyIdx)
                     .append("\":\"")
-                    .append(userCredentials.getPassword().charAt(passwordKeyIdx - 1))
+                    .append(userCredentials.getPassword().charAt(passwordKeyIdx - 1)) //TODO escape characters which can allow dependency injection attack like " { } etc.
                     .append("\",");
         }
         maskedPasswordBuilder.delete(maskedPasswordBuilder.length() - 1, maskedPasswordBuilder.length())

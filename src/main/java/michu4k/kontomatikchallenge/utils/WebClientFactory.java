@@ -4,6 +4,7 @@ import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.WebClient;
 
 public class WebClientFactory {
+    //TODO remove static webClient - it's not thread safe
     private static WebClient webClient;
 
     public static WebClient getWebClient() {
