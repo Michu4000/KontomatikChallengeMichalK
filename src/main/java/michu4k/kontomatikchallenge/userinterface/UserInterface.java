@@ -11,7 +11,7 @@ public class UserInterface {
     private final static String OUTPUT_MSG_HEADER = "\nNEST ACCOUNTS BALANCES:";
 
     public static UserCredentials findOutUserCredentials(String[] args) throws BadArgumentsException {
-        if(args.length != 3) {
+        if (args.length != 3) {
             throw new BadArgumentsException();
         }
 

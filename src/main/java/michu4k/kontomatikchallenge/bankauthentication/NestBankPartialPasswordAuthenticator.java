@@ -13,6 +13,8 @@ import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
+import org.apache.commons.text.StringEscapeUtils;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -46,11 +48,12 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         return enterPasswordAndAvatar(passwordKeysIntArr, userCredentials);
     }
 
-    private String enterLogin(UserCredentials userCredentials) throws BankConnectionException, BadLoginException, MalformedURLException {
+    private String enterLogin(UserCredentials userCredentials)
+            throws BankConnectionException, BadLoginException, MalformedURLException {
         URL loginSiteUrl = new URL(LOGIN_SITE_URL);
 
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(userCredentials.login) //TODO escape characters which can allow dependency injection attack like " { } etc.
+                .append(StringEscapeUtils.escapeJson(userCredentials.login))
                 .append("\"}").toString();
         WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
@@ -126,13 +129,13 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
 
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
         StringBuilder maskedPasswordBuilder = new StringBuilder("{\"login\":\"");
-        maskedPasswordBuilder.append(userCredentials.login) //TODO escape characters which can allow dependency injection attack like " { } etc.
+        maskedPasswordBuilder.append(StringEscapeUtils.escapeJson(userCredentials.login))
                 .append("\",\"maskedPassword\":{");
         for (int passwordKeyIdx : passwordKeysIntArr) {
             maskedPasswordBuilder.append("\"")
                     .append(passwordKeyIdx)
                     .append("\":\"")
-                    .append(userCredentials.password.charAt(passwordKeyIdx - 1)) //TODO escape characters which can allow dependency injection attack like " { } etc.
+                    .append(StringEscapeUtils.escapeJson(userCredentials.password.substring(passwordKeyIdx-1, passwordKeyIdx)))
                     .append("\",");
         }
         maskedPasswordBuilder.delete(maskedPasswordBuilder.length() - 1, maskedPasswordBuilder.length())

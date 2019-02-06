@@ -53,7 +53,7 @@ public class Main {
         try {
             userCredentials = UserInterface.findOutUserCredentials(args);
         } catch (BadArgumentsException e) {
-            if(DEBUG_MODE) {
+            if (DEBUG_MODE) {
                 e.printStackTrace();
             }
             ErrorsPrinter.printArgumentsError();
@@ -68,25 +68,25 @@ public class Main {
         try {
             bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
         } catch (BankConnectionException e) {
-            if(DEBUG_MODE) {
+            if (DEBUG_MODE) {
                 e.printStackTrace();
             }
             ErrorsPrinter.printConnectionError();
             System.exit(1);
         } catch (BadLoginException e2) {
-            if(DEBUG_MODE) {
+            if (DEBUG_MODE) {
                 e2.printStackTrace();
             }
             ErrorsPrinter.printBadLoginError();
             System.exit(2);
         } catch (BadPasswordException e3) {
-            if(DEBUG_MODE) {
+            if (DEBUG_MODE) {
                 e3.printStackTrace();
             }
             ErrorsPrinter.printBadPasswordError();
             System.exit(2);
         } catch (BadCredentialsException e4) {
-            if(DEBUG_MODE) {
+            if (DEBUG_MODE) {
                 e4.printStackTrace();
             }
             ErrorsPrinter.printBadCredentialsError();

@@ -31,7 +31,8 @@ public class NestBankAccountScraper implements BankAccountScraper {
     }
 
     @Override
-    public List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException, MalformedURLException {
+    public List<BankAccountData> scrapeBankAccounts(BankSession bankSession)
+            throws BankConnectionException, MalformedURLException {
         URL bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
                     .append(bankSession.userId)
                     .append(BANK_ACCOUNTS_DATA_SITE_URL_END)

@@ -8,5 +8,6 @@ import java.net.MalformedURLException;
 import java.util.List;
 
 public interface BankAccountScraper {
-    List<BankAccountData> scrapeBankAccounts(BankSession bankSession) throws BankConnectionException, MalformedURLException;
+    List<BankAccountData> scrapeBankAccounts(BankSession bankSession)
+            throws BankConnectionException, MalformedURLException;
 }

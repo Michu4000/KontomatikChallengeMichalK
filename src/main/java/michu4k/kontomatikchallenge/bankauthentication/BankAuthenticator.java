@@ -8,5 +8,6 @@ import michu4k.kontomatikchallenge.exceptions.BankConnectionException;
 import java.net.MalformedURLException;
 
 public interface BankAuthenticator {
-    BankSession logIntoBankAccount(UserCredentials userCredentials) throws BankConnectionException, BadCredentialsException, MalformedURLException;
+    BankSession logIntoBankAccount(UserCredentials userCredentials)
+            throws BankConnectionException, BadCredentialsException, MalformedURLException;
 }
