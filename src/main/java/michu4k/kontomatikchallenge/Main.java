@@ -95,7 +95,7 @@ public class Main {
             if (DEBUG_MODE) {
                 e2.printStackTrace();
             }
-            ErrorsPrinter.printInternalApplictionError();
+            ErrorsPrinter.printInternalApplicationError();
             System.exit(3);
         }
         return bankSession;
@@ -116,7 +116,7 @@ public class Main {
             if (DEBUG_MODE) {
                 e2.printStackTrace();
             }
-            ErrorsPrinter.printInternalApplictionError();
+            ErrorsPrinter.printInternalApplicationError();
             System.exit(3);
         }
         return bankAccountsData;

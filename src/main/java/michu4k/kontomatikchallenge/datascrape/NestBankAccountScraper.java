@@ -24,7 +24,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_END = "/dashboard/www/config";
 
-    private WebClient webClient;
+    private final WebClient webClient;
 
     public NestBankAccountScraper(WebClient webClient) {
         this.webClient = webClient;
@@ -51,7 +51,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
         }
         String checkBankAccountsDataResponse = bankAccountsDataPage.getWebResponse().getContentAsString();
         List<String> bankAccountsInfoList = readBankAccountsInfoFromResponse(checkBankAccountsDataResponse);
-        return extractBankAccountsDatafromBankAccountsInfoList(bankAccountsInfoList);
+        return extractBankAccountsDataFromBankAccountsInfoList(bankAccountsInfoList);
     }
 
     private List<String> readBankAccountsInfoFromResponse(String response) throws BankConnectionException {
@@ -67,7 +67,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
         return Arrays.asList(bankAccountsInfo.split("\\},"));
     }
 
-    private List<BankAccountData> extractBankAccountsDatafromBankAccountsInfoList(List<String> bankAccountsInfoList)
+    private List<BankAccountData> extractBankAccountsDataFromBankAccountsInfoList(List<String> bankAccountsInfoList)
             throws BankConnectionException {
         List<BankAccountData> bankAccountsData = new ArrayList<>();
 
@@ -94,8 +94,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
             if (bankAccountsNumbersMatcher.find()) {
                 Stream<String> bankAccountNumberStream = Arrays.stream(bankAccountsNumbersMatcher.group(1).split(""));
                 try {
-                    int[] bankAccountNumberIntArr = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
-                    bankAccount.accountNumber = bankAccountNumberIntArr;
+                    bankAccount.accountNumber = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
                 } catch (NumberFormatException e) {
                     BankConnectionException bankConnectionException = new BankConnectionException();
                     bankConnectionException.setStackTrace(e.getStackTrace());

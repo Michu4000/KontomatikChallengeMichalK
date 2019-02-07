@@ -28,7 +28,7 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
     private final static String PASSWORD_AND_AVATAR_SITE_URL =
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
-    private WebClient webClient;
+    private final WebClient webClient;
 
     public NestBankPartialPasswordAuthenticator(WebClient webClient) {
         this.webClient = webClient;

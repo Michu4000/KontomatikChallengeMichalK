@@ -28,7 +28,7 @@ public class ErrorsPrinter {
         System.out.println(BAD_PASSWORD_MSG);
     }
 
-    public static void printInternalApplictionError() {
+    public static void printInternalApplicationError() {
         System.out.println(INTERNAL_ERROR_MSG);
     }
 }
