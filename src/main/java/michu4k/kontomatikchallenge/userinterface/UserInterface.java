@@ -26,23 +26,16 @@ public class UserInterface {
         return userCredentials;
     }
 
-    public static void printBankAccounts(List<BankAccount> bankAccountsData) {
+    public static void printBankAccounts(List<BankAccount> bankAccounts) {
         System.out.println(OUTPUT_MSG_HEADER);
-        for (int bankAccountIdx = 0; bankAccountIdx < bankAccountsData.size(); bankAccountIdx++) {
-            //TODO don't use StringBuilder (?)
-            System.out.println(new StringBuilder("#")
-                    .append(bankAccountIdx)
-                    .append("\naccount name: ")
-                    .append(bankAccountsData.get(bankAccountIdx).accountName)
-                    .append("\naccount number: ")
-                    .append(Arrays.toString(bankAccountsData.get(bankAccountIdx)
-                            .accountNumber).replaceAll("\\D", ""))
-                    .append("\naccount balance: ")
-                    .append(bankAccountsData.get(bankAccountIdx).accountBalance)
-                    .append(" ")
-                    .append(bankAccountsData.get(bankAccountIdx).accountCurrency)
-                    .toString()
-            );
+        for (int bankAccountIdx = 0; bankAccountIdx < bankAccounts.size(); bankAccountIdx++) {
+            System.out.println("#" + bankAccountIdx);
+            System.out.println("account name: " + bankAccounts.get(bankAccountIdx).accountName);
+            System.out.println("account number: ");
+            System.out.print(Arrays.toString(bankAccounts.get(bankAccountIdx).accountNumber)
+                                                .replaceAll("\\D", ""));
+            System.out.println("account balance: " + bankAccounts.get(bankAccountIdx).accountBalance + " ");
+            System.out.print(bankAccounts.get(bankAccountIdx).accountCurrency);
         }
     }
 }

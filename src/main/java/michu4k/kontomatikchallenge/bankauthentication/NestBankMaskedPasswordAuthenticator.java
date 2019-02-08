@@ -1,16 +1,16 @@
 package michu4k.kontomatikchallenge.bankauthentication;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginException;
 import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
+
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -21,15 +21,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-//TODO change class name, something like "MaskedPassword"
-public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
+public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private final static String LOGIN_SITE_URL = "https://login.nestbank.pl/rest/v1/auth/checkLogin";
     private final static String PASSWORD_AND_AVATAR_SITE_URL =
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
     private final WebClient webClient;
 
-    public NestBankPartialPasswordAuthenticator(WebClient webClient) {
+    public NestBankMaskedPasswordAuthenticator(WebClient webClient) {
         this.webClient = webClient;
     }
 
@@ -40,32 +39,31 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
 
         String loginResponse;
         try {
-            loginResponse = enterLogin(userCredentials);
+            loginResponse = enterLogin(userCredentials.login);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadLoginException(failingHttpStatusCodeException);
         }
-        //TODO var name, should be maskedPasswordIndexes etc.
-        int[] passwordKeysIntArr = extractPartialPasswordKeysFromResponse(loginResponse);
+
+        int[] maskedPasswordKeysIndexes = extractMaskedPasswordKeysIndexesFromResponse(loginResponse);
 
         //TODO as above: this shouldn't be here:
 
         // entered password is shorter than expected
-        if (passwordKeysIntArr[passwordKeysIntArr.length-1] > userCredentials.getPasswordLength())
+        if (maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length-1] > userCredentials.password.length())
             throw new BadPasswordException();
         try {
-            return enterPasswordAndAvatar(passwordKeysIntArr, userCredentials);
+            return enterPasswordAndAvatar(maskedPasswordKeysIndexes, userCredentials);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadCredentialsException(failingHttpStatusCodeException);
         }
     }
 
-    //TODO argument should be only login
-    private String enterLogin(UserCredentials userCredentials) throws IOException {
+    private String enterLogin(String login) throws IOException {
         URL loginSiteUrl = new URL(LOGIN_SITE_URL);
 
         //TODO use library to build JSONs
         String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(StringEscapeUtils.escapeJson(userCredentials.login))
+                .append(StringEscapeUtils.escapeJson(login))
                 .append("\"}").toString();
         WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
 
@@ -99,23 +97,20 @@ public class NestBankPartialPasswordAuthenticator implements BankAuthenticator {
         return bankSession;
     }
 
-    //TODO method name: PartialPassword to MaskedPassword etc.
-    private int[] extractPartialPasswordKeysFromResponse(String loginResponse) throws IOException {
+    private int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) throws IOException {
         //TODO use library to build JSONs
-        //TODO var names
-        Pattern passwordKeysPattern = Pattern.compile("\"passwordKeys\":\\[(.*)\\]");
-        Matcher passwordKeysMatcher = passwordKeysPattern.matcher(loginResponse);
-        String passwordKeys;
-        if (passwordKeysMatcher.find())
-            passwordKeys = passwordKeysMatcher.group(1);
+        Pattern maskedPasswordKeysIndexesPattern = Pattern.compile("\"passwordKeys\":\\[(.*)\\]");
+        Matcher maskedPasswordKeysIndexesMatcher = maskedPasswordKeysIndexesPattern.matcher(loginResponse);
+        String rawMaskedPasswordKeysIndexes;
+        if (maskedPasswordKeysIndexesMatcher.find())
+            rawMaskedPasswordKeysIndexes = maskedPasswordKeysIndexesMatcher.group(1);
         else
             throw new IOException();
 
-        //TODO var names
-        String[] passwordKeysStrArr = passwordKeys.split(",");
-        Stream<String> passwordKeysStream = Arrays.stream(passwordKeysStrArr);
+        String[] maskedPasswordKeysIndexes = rawMaskedPasswordKeysIndexes.split(",");
+        Stream<String> maskedPasswordKeysIndexesStream = Arrays.stream(maskedPasswordKeysIndexes);
 
-        return passwordKeysStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+        return maskedPasswordKeysIndexesStream.mapToInt(x -> Integer.parseInt(x)).toArray();
     }
 
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {

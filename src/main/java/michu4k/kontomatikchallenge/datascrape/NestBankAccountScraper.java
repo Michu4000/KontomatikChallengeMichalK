@@ -1,12 +1,12 @@
 package michu4k.kontomatikchallenge.datascrape;
 
-import com.gargoylesoftware.htmlunit.Page;
-import com.gargoylesoftware.htmlunit.WebClient;
-import com.gargoylesoftware.htmlunit.WebRequest;
-
 import michu4k.kontomatikchallenge.datastructures.BankAccount;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
+
+import com.gargoylesoftware.htmlunit.Page;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.WebRequest;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -28,59 +28,42 @@ public class NestBankAccountScraper implements BankAccountScraper {
         this.webClient = webClient;
     }
 
-    //TODO method name
     @Override
     public List<BankAccount> scrapeBankAccounts(BankSession bankSession) throws IOException {
 
         //TODO don't mix up different abstraction levels!
 
-        //TODO String concat (?)
-        //TODO DON'T USE WORD DATA!
-        URL bankAccountsDataUrl = new URL(new StringBuilder(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING)
-                    .append(bankSession.userId)
-                    .append(BANK_ACCOUNTS_DATA_SITE_URL_END)
-                    .toString());
+        URL bankAccountsUrl = new URL(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING + bankSession.userId + BANK_ACCOUNTS_DATA_SITE_URL_END);
 
-        //TODO DON'T USE WORD DATA!
-        WebRequest checkBankAccountsDataRequest = WebRequestFactory.produceRequestGet(bankAccountsDataUrl,
+        WebRequest checkBankAccountsRequest = WebRequestFactory.produceRequestGet(bankAccountsUrl,
                 bankSession.sessionToken);
 
-        //TODO DON'T USE WORD DATA!
-        Page bankAccountsDataPage;
-        //TODO catch it higher
-        //TODO wrap exception not only stacktrace
+        Page bankAccountsPage = webClient.getPage(checkBankAccountsRequest);
 
-        bankAccountsDataPage = webClient.getPage(checkBankAccountsDataRequest);
-
-        //TODO DON'T USE WORD DATA!
-        String checkBankAccountsDataResponse = bankAccountsDataPage.getWebResponse().getContentAsString();
-        //TODO DON'T USE WORD INFO!
-        List<String> bankAccountsInfoList = readBankAccountsInfoFromResponse(checkBankAccountsDataResponse);
-        return extractBankAccountsDataFromBankAccountsInfoList(bankAccountsInfoList);
+        String checkBankAccountsResponse = bankAccountsPage.getWebResponse().getContentAsString();
+        List<String> rawBankAccountsList = readRawBankAccountsFromResponse(checkBankAccountsResponse);
+        return extractBankAccountsFromRawBankAccountsList(rawBankAccountsList);
     }
 
-    //TODO DON'T USE WORD INFO!
     //TODO method name too long
-    private List<String> readBankAccountsInfoFromResponse(String response) throws IOException {
+    private List<String> readRawBankAccountsFromResponse(String response) throws IOException {
         //TODO use library to build JSONs
         Pattern bankAccountsPattern = Pattern.compile("\"accounts\":\\[(.*)\\],\"savingsAccounts\"");
         Matcher bankAccountsMatcher = bankAccountsPattern.matcher(response);
-        String bankAccountsInfo;
+        String rawBankAccounts;
         if (bankAccountsMatcher.find())
-            bankAccountsInfo = bankAccountsMatcher.group(1);
+            rawBankAccounts = bankAccountsMatcher.group(1);
         else
             throw new IOException();
 
-        return Arrays.asList(bankAccountsInfo.split("\\},"));
+        return Arrays.asList(rawBankAccounts.split("\\},"));
     }
 
     //TODO too long method (?)
-    //TODO DON'T USE WORDs DATA and INFO!
     //TODO method name too long
-    private List<BankAccount> extractBankAccountsDataFromBankAccountsInfoList(List<String> bankAccountsInfoList)
+    private List<BankAccount> extractBankAccountsFromRawBankAccountsList(List<String> rawBankAccountsList)
             throws IOException {
-        //TODO DON'T USE WORD DATA!
-        List<BankAccount> bankAccountsData = new ArrayList<>();
+        List<BankAccount> bankAccounts = new ArrayList<>();
 
         //TODO use library to build JSONs
         Pattern bankAccountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
@@ -88,15 +71,13 @@ public class NestBankAccountScraper implements BankAccountScraper {
         Pattern bankAccountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
         Pattern bankAccountsCurrenciesPattern = Pattern.compile("\"currency\":\"(.*)\",\"version\"");
 
-        //TODO DON'T USE WORD INFO!
-        for (String bankAccountInfo : bankAccountsInfoList) {
-            //TODO DON'T USE WORD DATA!
+        for (String rawBankAccount : rawBankAccountsList) {
             BankAccount bankAccount = new BankAccount();
 
-            Matcher bankAccountsNamesMatcher = bankAccountsNamesPattern.matcher(bankAccountInfo);
-            Matcher bankAccountsNumbersMatcher = bankAccountsNumbersPattern.matcher(bankAccountInfo);
-            Matcher bankAccountsBalancesMatcher = bankAccountsBalancesPattern.matcher(bankAccountInfo);
-            Matcher bankAccountsCurrenciesMatcher = bankAccountsCurrenciesPattern.matcher(bankAccountInfo);
+            Matcher bankAccountsNamesMatcher = bankAccountsNamesPattern.matcher(rawBankAccount);
+            Matcher bankAccountsNumbersMatcher = bankAccountsNumbersPattern.matcher(rawBankAccount);
+            Matcher bankAccountsBalancesMatcher = bankAccountsBalancesPattern.matcher(rawBankAccount);
+            Matcher bankAccountsCurrenciesMatcher = bankAccountsCurrenciesPattern.matcher(rawBankAccount);
 
             if (bankAccountsNamesMatcher.find())
                 bankAccount.accountName = bankAccountsNamesMatcher.group(1);
@@ -120,8 +101,8 @@ public class NestBankAccountScraper implements BankAccountScraper {
             else
                 throw new IOException();
 
-            bankAccountsData.add(bankAccount);
+            bankAccounts.add(bankAccount);
         }
-        return bankAccountsData;
+        return bankAccounts;
     }
 }

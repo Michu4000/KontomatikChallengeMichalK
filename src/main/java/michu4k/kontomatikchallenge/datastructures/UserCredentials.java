@@ -12,8 +12,4 @@ public class UserCredentials {
     public boolean isEverythingFilled() {
         return (login.length() > 0 && password.length() > 0 && avatarId > -1);
     }
-
-    public int getPasswordLength() {
-        return password.length();
-    }
 }

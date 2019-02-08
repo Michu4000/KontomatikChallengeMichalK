@@ -8,19 +8,20 @@
 //
 package michu4k.kontomatikchallenge;
 
-import com.gargoylesoftware.htmlunit.WebClient;
-
 import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
-import michu4k.kontomatikchallenge.bankauthentication.NestBankPartialPasswordAuthenticator;
+import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
 import michu4k.kontomatikchallenge.datascrape.BankAccountScraper;
 import michu4k.kontomatikchallenge.datascrape.NestBankAccountScraper;
 import michu4k.kontomatikchallenge.datastructures.BankAccount;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
-import michu4k.kontomatikchallenge.exceptions.*;
+import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
+import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.userinterface.ErrorsPrinter;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
+
+import com.gargoylesoftware.htmlunit.WebClient;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -50,8 +51,8 @@ public class Main {
         getWebClient();
 
         try {
-            signIn(userCredentials);
-            importBankAccounts(bankSession);
+            signIn();
+            importBankAccounts();
         } catch (BadCredentialsException badCredentialsException) {
             if (DEBUG_MODE)
                 badCredentialsException.printStackTrace();
@@ -83,12 +84,12 @@ public class Main {
             webClient = WebClientFactory.getWebClientWithProxy();
     }
 
-    private static void signIn(UserCredentials userCredentials) throws IOException {
-        BankAuthenticator bankAuthenticator = new NestBankPartialPasswordAuthenticator(webClient);
+    private static void signIn() throws IOException {
+        BankAuthenticator bankAuthenticator = new NestBankMaskedPasswordAuthenticator(webClient);
         bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
     }
 
-    private static void importBankAccounts(BankSession bankSession) throws IOException {
+    private static void importBankAccounts() throws IOException {
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
         bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
     }
