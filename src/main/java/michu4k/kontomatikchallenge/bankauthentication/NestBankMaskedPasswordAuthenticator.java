@@ -12,14 +12,18 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
-import org.apache.commons.text.StringEscapeUtils;
-
 import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
+
+import javax.json.JsonObject;
+import javax.json.JsonObjectBuilder;
+import javax.json.Json;
 
 public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private final static String LOGIN_SITE_URL = "https://login.nestbank.pl/rest/v1/auth/checkLogin";
@@ -61,14 +65,13 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private String enterLogin(String login) throws IOException {
         URL loginSiteUrl = new URL(LOGIN_SITE_URL);
 
-        //TODO use library to build JSONs
-        String loginSendRequestBody = new StringBuilder("{\"login\":\"")
-                .append(StringEscapeUtils.escapeJson(login))
-                .append("\"}").toString();
-        WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginSendRequestBody);
+        JsonObject loginJson = Json.createObjectBuilder().add("login", login).build();
+        Writer writer = new StringWriter();
+        Json.createWriter(writer).write(loginJson);
+        String loginJsonString = writer.toString();
 
+        WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginJsonString);
         Page passwordPage = webClient.getPage(loginSendRequest);
-
         return passwordPage.getWebResponse().getContentAsString();
     }
 
@@ -86,7 +89,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
         BankSession bankSession = new BankSession();
 
-        //TODO use library to build JSONs
+        //TODO use library to parse JSONs
         Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
         Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
         if (userIdMatcher.find())
@@ -97,8 +100,9 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         return bankSession;
     }
 
+    //TODO method name too long
     private int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) throws IOException {
-        //TODO use library to build JSONs
+        //TODO use library to parse JSONs
         Pattern maskedPasswordKeysIndexesPattern = Pattern.compile("\"passwordKeys\":\\[(.*)\\]");
         Matcher maskedPasswordKeysIndexesMatcher = maskedPasswordKeysIndexesPattern.matcher(loginResponse);
         String rawMaskedPasswordKeysIndexes;
@@ -113,23 +117,28 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         return maskedPasswordKeysIndexesStream.mapToInt(x -> Integer.parseInt(x)).toArray();
     }
 
+    //TODO variables names
     private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
         //TODO use library to build JSONs
         //TODO hint: i can concat Strings because it's more clear and this loop is short so won't matter
-        StringBuilder maskedPasswordBuilder = new StringBuilder("{\"login\":\"");
-        maskedPasswordBuilder.append(StringEscapeUtils.escapeJson(userCredentials.login))
-                .append("\",\"maskedPassword\":{");
+
+        JsonObjectBuilder passwordJsonBuilder = Json.createObjectBuilder();
+        JsonObjectBuilder maskedPasswordJsonBuilder = Json.createObjectBuilder();
+
         for (int passwordKeyIdx : passwordKeysIntArr) {
-            maskedPasswordBuilder.append("\"")
-                    .append(passwordKeyIdx)
-                    .append("\":\"")
-                    .append(StringEscapeUtils.escapeJson(userCredentials.password.substring(passwordKeyIdx-1, passwordKeyIdx)))
-                    .append("\",");
+            maskedPasswordJsonBuilder.add(String.valueOf(passwordKeyIdx),
+                    userCredentials.password.substring(passwordKeyIdx - 1, passwordKeyIdx));
         }
-        maskedPasswordBuilder.delete(maskedPasswordBuilder.length() - 1, maskedPasswordBuilder.length())
-                .append("},\"avatarId\":")
-                .append(userCredentials.avatarId)
-                .append(",\"loginScopeType\":\"WWW\"}");
-        return  maskedPasswordBuilder.toString();
+
+        passwordJsonBuilder.add("login", userCredentials.login)
+                .add("maskedPassword", maskedPasswordJsonBuilder)
+                .add("avatarId", userCredentials.avatarId)
+                .add("loginScopeType", "WWW");
+
+        JsonObject maskedPasswordJson = passwordJsonBuilder.build();
+
+        Writer writer = new StringWriter();
+        Json.createWriter(writer).write(maskedPasswordJson);
+        return writer.toString();
     }
 }

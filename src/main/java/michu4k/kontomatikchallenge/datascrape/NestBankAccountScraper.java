@@ -47,7 +47,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
     //TODO method name too long
     private List<String> readRawBankAccountsFromResponse(String response) throws IOException {
-        //TODO use library to build JSONs
+        //TODO use library to parse JSONs
         Pattern bankAccountsPattern = Pattern.compile("\"accounts\":\\[(.*)\\],\"savingsAccounts\"");
         Matcher bankAccountsMatcher = bankAccountsPattern.matcher(response);
         String rawBankAccounts;
@@ -65,7 +65,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
             throws IOException {
         List<BankAccount> bankAccounts = new ArrayList<>();
 
-        //TODO use library to build JSONs
+        //TODO use library to parse JSONs
         Pattern bankAccountsNamesPattern = Pattern.compile("\"name\":\"(.*)\",\"openingBalance\"");
         Pattern bankAccountsNumbersPattern = Pattern.compile("\"nrb\":\"(.*)\",\"name\"");
         Pattern bankAccountsBalancesPattern = Pattern.compile("\"balance\":(.*),\"balanceDate\"");
