@@ -2,7 +2,7 @@ package michu4k.kontomatikchallenge.datastructures;
 
 import java.math.BigDecimal;
 
-public class BankAccountData {
+public class BankAccount {
     public String accountName;
     public int[] accountNumber;
     public BigDecimal accountBalance;
