@@ -23,25 +23,11 @@ public class ErrorsHandler {
                 printConnectionError();
                 System.exit(1);
                 break;
-            case "BadLoginMethodException": //TODO delete(?)
-                printInternalApplicationError();
-                System.exit(3);
-                break;
             case "BadCredentialsException":
+            case "BadLoginNameException":
+            case "BadPasswordException":
                 printBadCredentialsError();
                 System.exit(2);
-                break;
-            case "BadLoginException": //TODO redundant
-                printBadCredentialsError();
-                System.exit(2);
-                break;
-            case "BadPasswordException": //TODO redundant
-                printBadCredentialsError();
-                System.exit(2);
-                break;
-            case "MalformedURLException": //TODO delete(?)
-                printInternalApplicationError();
-                System.exit(3);
                 break;
             default:
                 printInternalApplicationError();

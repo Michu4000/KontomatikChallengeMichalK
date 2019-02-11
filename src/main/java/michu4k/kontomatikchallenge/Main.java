@@ -3,8 +3,9 @@
 //
 // Notice:
 // 1. Works only with masked password login method
+// (otherwise BadLoginMethodException is thrown and internal application error is printed)
 // 2. User must know his avatar id
-// 3. DEBUG_MODE sets proxy for testing with Burp
+// 3. DEBUG_MODE sets proxy for testing with Burp and prints stacktrace if exception is thrown
 //
 package michu4k.kontomatikchallenge;
 

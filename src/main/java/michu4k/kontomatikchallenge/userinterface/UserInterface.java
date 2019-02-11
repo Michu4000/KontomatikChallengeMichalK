@@ -5,6 +5,7 @@ import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -14,15 +15,13 @@ public class UserInterface {
     public static UserCredentials findOutUserCredentials(String[] args) {
         checkNumberOfArguments(args.length);
 
-        UserCredentials userCredentials;
         try {
-            userCredentials = fillCredentials(args);
+            UserCredentials userCredentials = fillCredentials(args);
+            checkForBlankCredentials(userCredentials);
+            return userCredentials;
         } catch (NumberFormatException numberFormatException) {
             throw new BadArgumentsException(numberFormatException);
         }
-
-        checkForBlankCredentials(userCredentials);
-        return userCredentials;
     }
 
     public static void printBankAccounts(List<BankAccount> bankAccounts) {
@@ -65,11 +64,32 @@ public class UserInterface {
     }
 
     private static void printBankAccountNumber(int[] accountNumber) {
-        System.out.println(Arrays.toString(accountNumber)
-                .replaceAll("\\D", ""));
+        String formattedAccountNumber = formatAccountNumber(accountNumber);
+        System.out.println("account number: " + formattedAccountNumber);
     }
 
-    private static void printBankAccountBalance(BigDecimal accountBalance, String accountCurrency) { //TODO format balance to ...xyz,ab
-        System.out.println("account balance: " + accountBalance + " " + accountCurrency);
+    private static void printBankAccountBalance(BigDecimal accountBalance, String accountCurrency) {
+        String formattedBalance = formatAccountBalance(accountBalance);
+        System.out.println("account balance: " + formattedBalance + " " + accountCurrency);
+    }
+
+    private static String formatAccountNumber(int[] accountNumber) {
+        String unformattedAccountNumber = (Arrays.toString(accountNumber).replaceAll("\\D", ""));
+        StringBuilder formattedAccountNumberBuilder = new StringBuilder();
+        // group first 2 digits
+        formattedAccountNumberBuilder.append(unformattedAccountNumber, 0, 2);
+        // then group every 4 digits
+        for(int i = 2; i <= 22; i += 4) {
+            formattedAccountNumberBuilder
+                    .append(" ")
+                    .append(unformattedAccountNumber, i, i+4);
+        }
+        // iban format: XX XXXX XXXX XXXX XXXX XXXX XXXX
+        return formattedAccountNumberBuilder.toString();
+    }
+
+    private static String formatAccountBalance(BigDecimal accountBalance) {
+        DecimalFormat balanceFormat = new DecimalFormat("#.00");
+        return balanceFormat.format(accountBalance);
     }
 }

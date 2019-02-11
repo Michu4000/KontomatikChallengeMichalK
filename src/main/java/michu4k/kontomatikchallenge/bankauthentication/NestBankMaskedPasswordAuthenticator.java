@@ -3,7 +3,7 @@ package michu4k.kontomatikchallenge.bankauthentication;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
-import michu4k.kontomatikchallenge.exceptions.BadLoginException;
+import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
@@ -33,6 +33,8 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
     private final WebClient webClient;
+    private String loginResponse;
+    private BankSession bankSession;
 
     public NestBankMaskedPasswordAuthenticator(WebClient webClient) {
         this.webClient = webClient;
@@ -40,50 +42,42 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
     @Override
     public BankSession logIntoBankAccount(UserCredentials userCredentials) throws IOException {
-        //TODO don't mix up different abstraction levels!
-        //TODO should be: 1.enterLogin() 2.enterPassword() 3.enterAvatar()
-
-        String loginResponse;
         try {
-            loginResponse = enterLogin(userCredentials.login);
+            enterLogin(userCredentials.login);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
-            throw new BadLoginException(failingHttpStatusCodeException);
-        }
-
-        int[] maskedPasswordKeysIndexes = extractMaskedPasswordKeysIndexesFromResponse(loginResponse);
-
-        //TODO as above: this shouldn't be here:
-
-        // entered password is shorter than expected
-        if (maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length-1] > userCredentials.password.length())
-            throw new BadPasswordException();
-        try {
-            return enterPasswordAndAvatar(maskedPasswordKeysIndexes, userCredentials);
-        } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
-            throw new BadCredentialsException(failingHttpStatusCodeException);
-        }
-    }
-
-    private String enterLogin(String login) throws IOException {
-        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
-
-        JsonObject loginJson = Json.createObjectBuilder().add("login", login).build();
-        Writer writer = new StringWriter();
-        try {
-            Json.createWriter(writer).write(loginJson);
+            throw new BadLoginNameException(failingHttpStatusCodeException);
         } catch (JsonException | IllegalStateException jsonException) {
             throw new IOException(jsonException);
         }
-        String loginJsonString = writer.toString();
+
+        try {
+            enterPasswordAndAvatar(userCredentials);
+        } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
+            throw new BadCredentialsException(failingHttpStatusCodeException);
+        } catch (JsonException | IllegalStateException | ClassCastException jsonException) {
+            throw new IOException(jsonException);
+        }
+
+        return bankSession;
+    }
+
+    private void enterLogin(String login) throws IOException {
+        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
+
+        JsonObject loginJson = Json.createObjectBuilder().add("login", login).build();
+        String loginJsonString = writeJsonToString(loginJson);
 
         WebRequest loginSendRequest = WebRequestFactory.createRequestPost(loginSiteUrl, loginJsonString);
         Page passwordPage = webClient.getPage(loginSendRequest);
-        return passwordPage.getWebResponse().getContentAsString();
+        loginResponse = passwordPage.getWebResponse().getContentAsString();
     }
 
-    private BankSession enterPasswordAndAvatar(int[] passwordKeysIntArr, UserCredentials userCredentials)
-            throws IOException {
-        String passwordAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
+    private void enterPasswordAndAvatar(UserCredentials userCredentials) throws IOException {
+        int[] maskedPasswordKeysIndexes = extractMaskedPasswordKeysIndexesFromResponse();
+
+        checkPasswordLength(userCredentials.password, maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length-1]);
+
+        String passwordAndAvatarSendRequestBody = buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials);
         URL passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
 
         WebRequest passwordAndAvatarSendRequest = WebRequestFactory.createRequestPost(passwordAndAvatarUrl,
@@ -93,41 +87,49 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
         String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
 
-        BankSession bankSession = new BankSession();
+        bankSession = new BankSession();
 
         JsonReader reader = Json.createReader(new StringReader(passwordAndAvatarResponse));
-        try {
-            JsonObject userIdJson = reader.readObject();
-            JsonArray userContextJsonArray = userIdJson.getJsonArray("userContexts");
-            bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
-        } catch (JsonException | IllegalStateException | ClassCastException jsonException) {
-            throw new IOException(jsonException);
-        }
+        JsonObject userIdJson = reader.readObject();
+        JsonArray userContextJsonArray = userIdJson.getJsonArray("userContexts");
+        bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
 
         bankSession.sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
-        return bankSession;
+    }
+
+    private String writeJsonToString(JsonObject jsonObject) {
+        Writer writer = new StringWriter();
+        Json.createWriter(writer).write(jsonObject);
+        return writer.toString();
+    }
+
+    private void checkPasswordLength(String password, int minLength) {
+        if (minLength > password.length())
+            // entered password is shorter than expected
+            throw new BadPasswordException();
     }
 
     //TODO method name too long
-    private int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) throws IOException {
+    private int[] extractMaskedPasswordKeysIndexesFromResponse() {
         JsonReader reader = Json.createReader(new StringReader(loginResponse));
 
-        try {
-            JsonObject loginResponseJson = reader.readObject();
+        JsonObject loginResponseJson = reader.readObject();
 
-            if (!loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD"))
-                throw new BadLoginMethodException();
+        if (!loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD"))
+            throw new BadLoginMethodException();
 
-            JsonArray maskedPasswordKeysJsonArray = loginResponseJson.getJsonArray("passwordKeys");
-            int[] maskedPasswordKeysIndexes = maskedPasswordKeysJsonArray.getValuesAs(JsonNumber.class).stream().mapToInt(JsonNumber::intValue).toArray();
-            return maskedPasswordKeysIndexes;
-        } catch (JsonException | IllegalStateException | ClassCastException jsonException) {
-            throw new IOException(jsonException);
-        }
+        JsonArray maskedPasswordKeysJsonArray = loginResponseJson.getJsonArray("passwordKeys");
+        int[] maskedPasswordKeysIndexes =
+                maskedPasswordKeysJsonArray
+                .getValuesAs(JsonNumber.class)
+                .stream()
+                .mapToInt(JsonNumber::intValue)
+                .toArray();
+        return maskedPasswordKeysIndexes;
     }
 
     //TODO variables names
-    private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) throws IOException {
+    private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
         JsonObjectBuilder passwordJsonBuilder = Json.createObjectBuilder();
         JsonObjectBuilder maskedPasswordJsonBuilder = Json.createObjectBuilder();
 
@@ -142,13 +144,6 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
                 .add("loginScopeType", "WWW");
 
         JsonObject maskedPasswordJson = passwordJsonBuilder.build();
-
-        Writer writer = new StringWriter();
-        try {
-            Json.createWriter(writer).write(maskedPasswordJson);
-        } catch (JsonException | IllegalStateException jsonException) {
-            throw new IOException(jsonException);
-        }
-        return writer.toString();
+        return writeJsonToString(maskedPasswordJson);
     }
 }
