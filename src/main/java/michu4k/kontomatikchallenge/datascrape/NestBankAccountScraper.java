@@ -35,7 +35,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
         URL bankAccountsUrl = new URL(BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING + bankSession.userId + BANK_ACCOUNTS_DATA_SITE_URL_END);
 
-        WebRequest checkBankAccountsRequest = WebRequestFactory.produceRequestGet(bankAccountsUrl,
+        WebRequest checkBankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl,
                 bankSession.sessionToken);
 
         Page bankAccountsPage = webClient.getPage(checkBankAccountsRequest);
@@ -86,7 +86,11 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
             if (bankAccountsNumbersMatcher.find()) {
                 Stream<String> bankAccountNumberStream = Arrays.stream(bankAccountsNumbersMatcher.group(1).split(""));
-                bankAccount.accountNumber = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+                try {
+                    bankAccount.accountNumber = bankAccountNumberStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+                } catch (NumberFormatException numberFormatException) {
+                    throw new IOException(numberFormatException);
+                }
             } else {
                 throw new IOException();
             }

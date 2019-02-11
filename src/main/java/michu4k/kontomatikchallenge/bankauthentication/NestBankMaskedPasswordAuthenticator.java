@@ -70,7 +70,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         Json.createWriter(writer).write(loginJson);
         String loginJsonString = writer.toString();
 
-        WebRequest loginSendRequest = WebRequestFactory.produceRequestPost(loginSiteUrl, loginJsonString);
+        WebRequest loginSendRequest = WebRequestFactory.createRequestPost(loginSiteUrl, loginJsonString);
         Page passwordPage = webClient.getPage(loginSendRequest);
         return passwordPage.getWebResponse().getContentAsString();
     }
@@ -80,7 +80,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         String passwordAndAvatarSendRequestBody = buildMaskedPassword(passwordKeysIntArr, userCredentials);
         URL passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
 
-        WebRequest passwordAndAvatarSendRequest = WebRequestFactory.produceRequestPost(passwordAndAvatarUrl,
+        WebRequest passwordAndAvatarSendRequest = WebRequestFactory.createRequestPost(passwordAndAvatarUrl,
                 passwordAndAvatarSendRequestBody);
 
         Page afterLoginPage = webClient.getPage(passwordAndAvatarSendRequest);
@@ -93,7 +93,11 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         Pattern userIdPattern = Pattern.compile("\"userContexts\":\\[\\{\"id\":(.*?),");
         Matcher userIdMatcher = userIdPattern.matcher(passwordAndAvatarResponse);
         if (userIdMatcher.find())
-            bankSession.userId = Integer.parseInt(userIdMatcher.group(1));
+            try {
+                bankSession.userId = Integer.parseInt(userIdMatcher.group(1));
+            } catch (NumberFormatException numberFormatException) {
+                throw new IOException(numberFormatException);
+            }
         else
             throw new IOException();
         bankSession.sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
@@ -114,7 +118,11 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         String[] maskedPasswordKeysIndexes = rawMaskedPasswordKeysIndexes.split(",");
         Stream<String> maskedPasswordKeysIndexesStream = Arrays.stream(maskedPasswordKeysIndexes);
 
-        return maskedPasswordKeysIndexesStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+        try {
+            return maskedPasswordKeysIndexesStream.mapToInt(x -> Integer.parseInt(x)).toArray();
+        } catch (NumberFormatException numberFormatException) {
+            throw new IOException(numberFormatException);
+        }
     }
 
     //TODO variables names

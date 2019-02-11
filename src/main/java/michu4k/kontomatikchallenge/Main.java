@@ -17,14 +17,13 @@ import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
-import michu4k.kontomatikchallenge.userinterface.ErrorsPrinter;
+import michu4k.kontomatikchallenge.userinterface.ErrorsHandler;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.List;
 
 //TODO WRITE TESTs!!! For classes with logic
@@ -41,33 +40,17 @@ public class Main {
     public static void main(String[] args) {
         try {
             enterCredentials(args);
-        } catch (BadArgumentsException | NumberFormatException badArgumentsException) {
-            if (DEBUG_MODE)
-                badArgumentsException.printStackTrace();
-            ErrorsPrinter.printArgumentsError();
-            System.exit(2);
+        } catch (BadArgumentsException badArgumentsException) {
+            ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
         }
 
-        getWebClient();
+        setupConnection();
 
         try {
             signIn();
             importBankAccounts();
-        } catch (BadCredentialsException badCredentialsException) {
-            if (DEBUG_MODE)
-                badCredentialsException.printStackTrace();
-            ErrorsPrinter.printBadCredentialsError();
-            System.exit(2);
-        } catch (MalformedURLException malformedURLException) {
-            if (DEBUG_MODE)
-                malformedURLException.printStackTrace();
-            ErrorsPrinter.printInternalApplicationError();
-            System.exit(3);
-        }catch (IOException | NumberFormatException ioException) {
-            if (DEBUG_MODE)
-                ioException.printStackTrace();
-            ErrorsPrinter.printConnectionError();
-            System.exit(1);
+        } catch (BadCredentialsException | IOException exception) {
+            ErrorsHandler.handleException(exception, DEBUG_MODE);
         }
 
         UserInterface.printBankAccounts(bankAccounts);
@@ -77,7 +60,7 @@ public class Main {
         userCredentials = UserInterface.findOutUserCredentials(args);
     }
 
-    private static void getWebClient() {
+    private static void setupConnection() {
         if (!DEBUG_MODE)
             webClient = WebClientFactory.getWebClient();
         else

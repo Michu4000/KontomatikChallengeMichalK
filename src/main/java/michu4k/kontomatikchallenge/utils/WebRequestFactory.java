@@ -13,23 +13,23 @@ public class WebRequestFactory {
     private final static String REQUEST_ACCEPT_ENCODING = "gzip, deflate";
     private final static String REQUEST_ACCEPT_LANGUAGE = "en-US,en;q=0.9,pl;q=0.8";
 
-    public static WebRequest produceRequestPost(URL url, String requestContent) {
-        WebRequest requestPost = addCommonHeaders(new WebRequest(url, HttpMethod.POST));
+    public static WebRequest createRequestPost(URL url, String requestContent) {
+        WebRequest requestPost = createRequest(new WebRequest(url, HttpMethod.POST));
         requestPost.setAdditionalHeader("Content-Type", REQUEST_POST_CONTENT_TYPE);
         requestPost.setAdditionalHeader("Referer", REQUEST_POST_REFERER_URL);
         requestPost.setRequestBody(requestContent);
         return requestPost;
     }
 
-    public static WebRequest produceRequestGet(URL url, String sessionToken) {
-        WebRequest requestGet = addCommonHeaders(new WebRequest(url, HttpMethod.GET));
+    public static WebRequest createRequestGet(URL url, String sessionToken) {
+        WebRequest requestGet = createRequest(new WebRequest(url, HttpMethod.GET));
         requestGet.setAdditionalHeader("Content-Type", REQUEST_GET_CONTENT_TYPE);
         requestGet.setAdditionalHeader("Referer", REQUEST_GET_REFERER_URL);
         requestGet.setAdditionalHeader("Session-Token", sessionToken);
         return requestGet;
     }
 
-    private static WebRequest addCommonHeaders(WebRequest webRequest) {
+    private static WebRequest createRequest(WebRequest webRequest) {
         webRequest.setAdditionalHeader("Accept", "*/*");
         webRequest.setAdditionalHeader("Accept-Encoding", REQUEST_ACCEPT_ENCODING);
         webRequest.setAdditionalHeader("Accept-Language", REQUEST_ACCEPT_LANGUAGE);
