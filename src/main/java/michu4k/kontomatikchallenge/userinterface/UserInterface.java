@@ -69,7 +69,7 @@ public class UserInterface {
                 .replaceAll("\\D", ""));
     }
 
-    private static void printBankAccountBalance(BigDecimal accountBalance, String accountCurrency) {
+    private static void printBankAccountBalance(BigDecimal accountBalance, String accountCurrency) { //TODO format balance to ...xyz,ab
         System.out.println("account balance: " + accountBalance + " " + accountCurrency);
     }
 }

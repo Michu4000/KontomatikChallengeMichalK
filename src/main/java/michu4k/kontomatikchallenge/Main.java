@@ -17,6 +17,7 @@ import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
+import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.userinterface.ErrorsHandler;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
@@ -49,7 +50,7 @@ public class Main {
         try {
             signIn();
             importBankAccounts();
-        } catch (BadCredentialsException | IOException exception) {
+        } catch (BadCredentialsException | BadLoginMethodException | IOException exception) {
             ErrorsHandler.handleException(exception, DEBUG_MODE);
         }
 
