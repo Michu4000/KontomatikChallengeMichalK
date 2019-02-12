@@ -8,7 +8,7 @@ public class ErrorsHandler {
     private final static String INTERNAL_ERROR_MSG = "Internal application error.";
 
     public static void handleException(Exception exception, boolean debugMode) {
-        //if (debugMode) //TODO uncomment
+        if (debugMode)
             exception.printStackTrace();
         printErrorAndExit(exception);
     }

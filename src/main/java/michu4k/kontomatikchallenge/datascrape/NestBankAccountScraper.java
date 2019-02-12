@@ -17,16 +17,19 @@ import javax.json.JsonValue;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class NestBankAccountScraper implements BankAccountScraper {
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
     private final static String BANK_ACCOUNTS_DATA_SITE_URL_END = "/dashboard/www/config";
 
     private final WebClient webClient;
+    private WebRequest bankAccountsRequest;
     private String bankAccountsResponse;
     private JsonArray jsonBankAccounts;
 
@@ -36,45 +39,67 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
     @Override
     public List<BankAccount> scrapeBankAccounts(BankSession bankSession) throws IOException {
-        sendBankAccountsRequest(bankSession);
-
+        createBankAccountRequest(bankSession);
+        sendBankAccountsRequest();
         try {
-            parseResponseToJsonArray();
+            parseBankAccountsResponseToJsonArray();
             return extractBankAccountsFromJsonArray();
-        } catch (JsonException | IllegalStateException | ClassCastException jsonException) {
+        } catch (JsonException | IllegalStateException | ClassCastException | NullPointerException jsonException) {
             throw new IOException(jsonException);
         }
     }
 
-    private void sendBankAccountsRequest(BankSession bankSession) throws IOException {
+    private void createBankAccountRequest(BankSession bankSession) throws IOException {
         URL bankAccountsUrl = new URL(
                 BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING
                         + bankSession.userId
                         + BANK_ACCOUNTS_DATA_SITE_URL_END
         );
-        WebRequest bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
+        bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
+    }
+
+    private void sendBankAccountsRequest() throws IOException {
         Page bankAccountsPage = webClient.getPage(bankAccountsRequest);
         bankAccountsResponse = bankAccountsPage.getWebResponse().getContentAsString();
     }
 
-    private void parseResponseToJsonArray() {
+    private void parseBankAccountsResponseToJsonArray() {
         JsonReader jsonReader = Json.createReader(new StringReader(bankAccountsResponse));
-        JsonObject bankAccountsJson = jsonReader.readObject();
-        jsonBankAccounts = bankAccountsJson.getJsonArray("accounts");
+        JsonObject rawJsonBankAccounts = jsonReader.readObject();
+        jsonBankAccounts = rawJsonBankAccounts.getJsonArray("accounts");
     }
 
     private List<BankAccount> extractBankAccountsFromJsonArray() {
-        List<BankAccount> bankAccounts = new ArrayList<>();
+        List<BankAccount> bankAccountsGroup = new ArrayList<>();
         for (JsonValue jsonBankAccount : jsonBankAccounts) {
             BankAccount bankAccount = new BankAccount();
-            bankAccount.accountName = jsonBankAccount.asJsonObject().getString("name");
-            bankAccount.accountNumber = Arrays.stream(
-                    jsonBankAccount.asJsonObject().getString("nrb").split("")
-            ).mapToInt(Integer::parseInt).toArray();
-            bankAccount.accountBalance = jsonBankAccount.asJsonObject().getJsonNumber("balance").bigDecimalValue();
-            bankAccount.accountCurrency = jsonBankAccount.asJsonObject().getString("currency");
-            bankAccounts.add(bankAccount);
+            bankAccount.accountName = JsonBankAccountExtractor.extractName(jsonBankAccount);
+            bankAccount.accountNumber = JsonBankAccountExtractor.extractNumber(jsonBankAccount);
+            bankAccount.accountBalance = JsonBankAccountExtractor.extractBalance(jsonBankAccount);
+            bankAccount.accountCurrency = JsonBankAccountExtractor.extractCurrency(jsonBankAccount);
+            bankAccountsGroup.add(bankAccount);
         }
-        return bankAccounts;
+        return bankAccountsGroup;
+    }
+
+    private static class JsonBankAccountExtractor {
+        private static String extractName(JsonValue jsonBankAccount) {
+            return jsonBankAccount.asJsonObject().getString("name");
+        }
+
+        private static int[] extractNumber(JsonValue jsonBankAccount) {
+            Stream<String> bankAccountNumberStream = Arrays.stream(
+                    jsonBankAccount.asJsonObject().getString("nrb").split("")
+            );
+            return bankAccountNumberStream.mapToInt(Integer::parseInt).toArray();
+        }
+
+        private static BigDecimal extractBalance(JsonValue jsonBankAccount) {
+            return jsonBankAccount.asJsonObject().getJsonNumber("balance").bigDecimalValue();
+        }
+
+        private static String extractCurrency(JsonValue jsonBankAccount) {
+            return jsonBankAccount.asJsonObject().getString("currency");
+        }
     }
 }

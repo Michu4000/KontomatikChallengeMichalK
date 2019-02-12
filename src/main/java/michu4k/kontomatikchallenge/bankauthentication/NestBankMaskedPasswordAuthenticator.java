@@ -6,6 +6,7 @@ import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
+import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -23,8 +24,6 @@ import javax.json.JsonObjectBuilder;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.net.URL;
 
 public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
@@ -33,7 +32,11 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
 
     private final WebClient webClient;
+    private WebRequest loginRequest;
+    private WebRequest passwordAndAvatarRequest;
     private String loginResponse;
+    private String passwordAndAvatarResponse;
+    private String sessionToken;
     private BankSession bankSession;
 
     public NestBankMaskedPasswordAuthenticator(WebClient webClient) {
@@ -46,7 +49,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             enterLogin(userCredentials.login);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadLoginNameException(failingHttpStatusCodeException);
-        } catch (JsonException | IllegalStateException jsonException) {
+        } catch (JsonException | IllegalStateException | NullPointerException jsonException) {
             throw new IOException(jsonException);
         }
 
@@ -54,7 +57,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             enterPasswordAndAvatar(userCredentials);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadCredentialsException(failingHttpStatusCodeException);
-        } catch (JsonException | IllegalStateException | ClassCastException jsonException) {
+        } catch (JsonException | IllegalStateException | ClassCastException | NullPointerException jsonException) {
             throw new IOException(jsonException);
         }
 
@@ -62,88 +65,105 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     }
 
     private void enterLogin(String login) throws IOException {
-        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
-
-        JsonObject loginJson = Json.createObjectBuilder().add("login", login).build();
-        String loginJsonString = writeJsonToString(loginJson);
-
-        WebRequest loginSendRequest = WebRequestFactory.createRequestPost(loginSiteUrl, loginJsonString);
-        Page passwordPage = webClient.getPage(loginSendRequest);
-        loginResponse = passwordPage.getWebResponse().getContentAsString();
+        createLoginRequest(login);
+        sendLoginRequest();
+        checkLoginMethod();
     }
 
     private void enterPasswordAndAvatar(UserCredentials userCredentials) throws IOException {
-        int[] maskedPasswordKeysIndexes = extractMaskedPasswordKeysIndexesFromResponse();
-
-        checkPasswordLength(userCredentials.password, maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length-1]);
-
-        String passwordAndAvatarSendRequestBody = buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials);
-        URL passwordAndAvatarUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
-
-        WebRequest passwordAndAvatarSendRequest = WebRequestFactory.createRequestPost(passwordAndAvatarUrl,
-                passwordAndAvatarSendRequestBody);
-
-        Page afterLoginPage = webClient.getPage(passwordAndAvatarSendRequest);
-
-        String passwordAndAvatarResponse = afterLoginPage.getWebResponse().getContentAsString();
-
-        bankSession = new BankSession();
-
-        JsonReader reader = Json.createReader(new StringReader(passwordAndAvatarResponse));
-        JsonObject userIdJson = reader.readObject();
-        JsonArray userContextJsonArray = userIdJson.getJsonArray("userContexts");
-        bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
-
-        bankSession.sessionToken = afterLoginPage.getWebResponse().getResponseHeaderValue("Session-Token");
+        createPasswordAndAvatarRequest(userCredentials);
+        sendPasswordAndAvatarRequest();
+        createBankSession();
     }
 
-    private String writeJsonToString(JsonObject jsonObject) {
-        Writer writer = new StringWriter();
-        Json.createWriter(writer).write(jsonObject);
-        return writer.toString();
+    private void createLoginRequest(String login) throws IOException {
+        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
+        JsonObject jsonLogin = Json.createObjectBuilder().add("login", login).build();
+        String jsonLoginString = JsonUtils.writeJsonToString(jsonLogin);
+        loginRequest = WebRequestFactory.createRequestPost(loginSiteUrl, jsonLoginString);
     }
 
-    private void checkPasswordLength(String password, int minLength) {
-        if (minLength > password.length())
-            // entered password is shorter than expected
-            throw new BadPasswordException();
+    private void sendLoginRequest() throws IOException {
+        Page passwordPage = webClient.getPage(loginRequest);
+        loginResponse = passwordPage.getWebResponse().getContentAsString();
     }
 
-    //TODO method name too long
-    private int[] extractMaskedPasswordKeysIndexesFromResponse() {
+    private void checkLoginMethod() {
         JsonReader reader = Json.createReader(new StringReader(loginResponse));
-
         JsonObject loginResponseJson = reader.readObject();
-
         if (!loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD"))
+            // login method other than masked password is not supported
             throw new BadLoginMethodException();
-
-        JsonArray maskedPasswordKeysJsonArray = loginResponseJson.getJsonArray("passwordKeys");
-        int[] maskedPasswordKeysIndexes =
-                maskedPasswordKeysJsonArray
-                .getValuesAs(JsonNumber.class)
-                .stream()
-                .mapToInt(JsonNumber::intValue)
-                .toArray();
-        return maskedPasswordKeysIndexes;
     }
 
-    //TODO variables names
-    private String buildMaskedPassword(int[] passwordKeysIntArr, UserCredentials userCredentials) {
-        JsonObjectBuilder passwordJsonBuilder = Json.createObjectBuilder();
-        JsonObjectBuilder maskedPasswordJsonBuilder = Json.createObjectBuilder();
+    private void createPasswordAndAvatarRequest(UserCredentials userCredentials) throws IOException {
+        URL passwordAndAvatarSiteUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
+        int[] maskedPasswordKeysIndexes = PasswordUtils.extractMaskedPasswordKeysIndexesFromResponse(loginResponse);
+        PasswordUtils.checkPasswordLength(userCredentials.password, maskedPasswordKeysIndexes);
+        String passwordAndAvatarRequestBody =
+                PasswordUtils.buildPasswordAndAvatarRequestBody(maskedPasswordKeysIndexes, userCredentials);
+        passwordAndAvatarRequest =
+                WebRequestFactory.createRequestPost(passwordAndAvatarSiteUrl, passwordAndAvatarRequestBody);
+    }
 
-        for (int passwordKeyIdx : passwordKeysIntArr) {
-            maskedPasswordJsonBuilder.add(String.valueOf(passwordKeyIdx),
-                    userCredentials.password.substring(passwordKeyIdx - 1, passwordKeyIdx));
+    private void sendPasswordAndAvatarRequest() throws IOException {
+        Page signedInPage = webClient.getPage(passwordAndAvatarRequest);
+        sessionToken = signedInPage.getWebResponse().getResponseHeaderValue("Session-Token");
+        passwordAndAvatarResponse = signedInPage.getWebResponse().getContentAsString();
+    }
+
+    private void createBankSession() {
+        bankSession = new BankSession();
+        JsonArray userContextJsonArray =
+                JsonUtils.parseResponseToJsonArray(passwordAndAvatarResponse, "userContexts");
+        bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
+        bankSession.sessionToken = sessionToken;
+    }
+
+    private static class PasswordUtils {
+        private static int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) {
+            JsonArray maskedPasswordKeysJsonArray =
+                    JsonUtils.parseResponseToJsonArray(loginResponse, "passwordKeys");
+            int[] maskedPasswordKeysIndexes =
+                    maskedPasswordKeysJsonArray
+                            .getValuesAs(JsonNumber.class)
+                            .stream()
+                            .mapToInt(JsonNumber::intValue)
+                            .toArray();
+            return maskedPasswordKeysIndexes;
         }
 
-        passwordJsonBuilder.add("login", userCredentials.login)
-                .add("maskedPassword", maskedPasswordJsonBuilder)
-                .add("avatarId", userCredentials.avatarId)
-                .add("loginScopeType", "WWW");
+        private static void checkPasswordLength(String password, int[] maskedPasswordKeysIndexes) {
+            int minLength = maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length - 1];
+            if (minLength > password.length())
+                // entered password is shorter than expected
+                throw new BadPasswordException();
+        }
 
-        JsonObject maskedPasswordJson = passwordJsonBuilder.build();
-        return writeJsonToString(maskedPasswordJson);
+        private static String buildPasswordAndAvatarRequestBody(
+                int[] maskedPasswordKeysIndexes, UserCredentials userCredentials
+        ) {
+            JsonObjectBuilder masterBuilder = Json.createObjectBuilder();
+            JsonObjectBuilder maskedPasswordBuilder =
+                    buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials.password);
+            masterBuilder
+                    .add("login", userCredentials.login)
+                    .add("maskedPassword", maskedPasswordBuilder)
+                    .add("avatarId", userCredentials.avatarId)
+                    .add("loginScopeType", "WWW");
+            JsonObject jsonPasswordAndAvatarRequestBody = masterBuilder.build();
+            return JsonUtils.writeJsonToString(jsonPasswordAndAvatarRequestBody);
+        }
+
+        private static JsonObjectBuilder buildMaskedPassword(int[] maskedPasswordKeysIndexes, String password) {
+            JsonObjectBuilder maskedPasswordBuilder = Json.createObjectBuilder();
+            for (int maskedPasswordKeyIdx : maskedPasswordKeysIndexes) {
+                maskedPasswordBuilder.add(
+                        String.valueOf(maskedPasswordKeyIdx),
+                        password.substring(maskedPasswordKeyIdx - 1, maskedPasswordKeyIdx)
+                );
+            }
+            return maskedPasswordBuilder;
+        }
     }
 }
