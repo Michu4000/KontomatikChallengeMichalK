@@ -5,8 +5,8 @@ import michu4k.kontomatikchallenge.datastructures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
-import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
+import michu4k.kontomatikchallenge.utils.PasswordUtils;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -19,8 +19,6 @@ import javax.json.Json;
 import javax.json.JsonException;
 import javax.json.JsonReader;
 import javax.json.JsonArray;
-import javax.json.JsonNumber;
-import javax.json.JsonObjectBuilder;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -118,52 +116,5 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
                 JsonUtils.parseResponseToJsonArray(passwordAndAvatarResponse, "userContexts");
         bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
         bankSession.sessionToken = sessionToken;
-    }
-
-    private static class PasswordUtils {
-        private static int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) {
-            JsonArray maskedPasswordKeysJsonArray =
-                    JsonUtils.parseResponseToJsonArray(loginResponse, "passwordKeys");
-            int[] maskedPasswordKeysIndexes =
-                    maskedPasswordKeysJsonArray
-                            .getValuesAs(JsonNumber.class)
-                            .stream()
-                            .mapToInt(JsonNumber::intValue)
-                            .toArray();
-            return maskedPasswordKeysIndexes;
-        }
-
-        private static void checkPasswordLength(String password, int[] maskedPasswordKeysIndexes) {
-            int minLength = maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length - 1];
-            if (minLength > password.length())
-                // entered password is shorter than expected
-                throw new BadPasswordException();
-        }
-
-        private static String buildPasswordAndAvatarRequestBody(
-                int[] maskedPasswordKeysIndexes, UserCredentials userCredentials
-        ) {
-            JsonObjectBuilder masterBuilder = Json.createObjectBuilder();
-            JsonObjectBuilder maskedPasswordBuilder =
-                    buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials.password);
-            masterBuilder
-                    .add("login", userCredentials.login)
-                    .add("maskedPassword", maskedPasswordBuilder)
-                    .add("avatarId", userCredentials.avatarId)
-                    .add("loginScopeType", "WWW");
-            JsonObject jsonPasswordAndAvatarRequestBody = masterBuilder.build();
-            return JsonUtils.writeJsonToString(jsonPasswordAndAvatarRequestBody);
-        }
-
-        private static JsonObjectBuilder buildMaskedPassword(int[] maskedPasswordKeysIndexes, String password) {
-            JsonObjectBuilder maskedPasswordBuilder = Json.createObjectBuilder();
-            for (int maskedPasswordKeyIdx : maskedPasswordKeysIndexes) {
-                maskedPasswordBuilder.add(
-                        String.valueOf(maskedPasswordKeyIdx),
-                        password.substring(maskedPasswordKeyIdx - 1, maskedPasswordKeyIdx)
-                );
-            }
-            return maskedPasswordBuilder;
-        }
     }
 }

@@ -6,7 +6,7 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import java.net.URL;
 
 public class WebRequestFactory {
-    private final static String REQUEST_POST_REFERER_URL = "https://login.nestbank.pl/dashboard/products";
+    private final static String REQUEST_POST_REFERER_URL = "https://login.nestbank.pl/login";
     private final static String REQUEST_POST_CONTENT_TYPE = "application/json";
     private final static String REQUEST_GET_REFERER_URL = "https://login.nestbank.pl/dashboard/products";
     private final static String REQUEST_GET_CONTENT_TYPE = "text/plain";

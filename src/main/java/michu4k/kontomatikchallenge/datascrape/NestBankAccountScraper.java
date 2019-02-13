@@ -2,21 +2,18 @@ package michu4k.kontomatikchallenge.datascrape;
 
 import michu4k.kontomatikchallenge.datastructures.BankAccount;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 
-import javax.json.JsonObject;
-import javax.json.Json;
 import javax.json.JsonException;
-import javax.json.JsonReader;
 import javax.json.JsonArray;
 import javax.json.JsonValue;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
@@ -25,8 +22,8 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class NestBankAccountScraper implements BankAccountScraper {
-    private final static String BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
-    private final static String BANK_ACCOUNTS_DATA_SITE_URL_END = "/dashboard/www/config";
+    private final static String BANK_ACCOUNTS_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
+    private final static String BANK_ACCOUNTS_SITE_URL_END = "/dashboard/www/config";
 
     private final WebClient webClient;
     private WebRequest bankAccountsRequest;
@@ -51,9 +48,9 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
     private void createBankAccountRequest(BankSession bankSession) throws IOException {
         URL bankAccountsUrl = new URL(
-                BANK_ACCOUNTS_DATA_SITE_URL_BEGINNING
+                BANK_ACCOUNTS_SITE_URL_BEGINNING
                         + bankSession.userId
-                        + BANK_ACCOUNTS_DATA_SITE_URL_END
+                        + BANK_ACCOUNTS_SITE_URL_END
         );
         bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
     }
@@ -64,9 +61,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
     }
 
     private void parseBankAccountsResponseToJsonArray() {
-        JsonReader jsonReader = Json.createReader(new StringReader(bankAccountsResponse));
-        JsonObject rawJsonBankAccounts = jsonReader.readObject();
-        jsonBankAccounts = rawJsonBankAccounts.getJsonArray("accounts");
+        jsonBankAccounts = JsonUtils.parseResponseToJsonArray(bankAccountsResponse, "accounts");
     }
 
     private List<BankAccount> extractBankAccountsFromJsonArray() {

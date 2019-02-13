@@ -28,9 +28,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import java.io.IOException;
 import java.util.List;
 
-//TODO WRITE TESTs!!! For classes with logic
-//TODO with TestNG
-
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
