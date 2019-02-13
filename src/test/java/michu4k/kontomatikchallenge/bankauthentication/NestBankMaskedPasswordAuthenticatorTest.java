@@ -25,7 +25,7 @@ public class NestBankMaskedPasswordAuthenticatorTest {
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.login = "testtest";
         userCredentials.password = "testtest123";
-        userCredentials.avatarId = 13;
+        userCredentials.avatarId = 23;
 
         BankSession bankSession = authenticator.logIntoBankAccount(userCredentials);
 
