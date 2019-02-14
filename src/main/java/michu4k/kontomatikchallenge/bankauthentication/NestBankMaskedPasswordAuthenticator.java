@@ -7,6 +7,7 @@ import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.PasswordUtils;
+import michu4k.kontomatikchallenge.utils.UrlProvider;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
@@ -17,18 +18,12 @@ import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import javax.json.JsonObject;
 import javax.json.Json;
 import javax.json.JsonException;
-import javax.json.JsonReader;
 import javax.json.JsonArray;
 
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URL;
 
 public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
-    private final static String LOGIN_SITE_URL = "https://login.nestbank.pl/rest/v1/auth/checkLogin";
-    private final static String PASSWORD_AND_AVATAR_SITE_URL =
-            "https://login.nestbank.pl/rest/v1/auth/loginByPartialPassword";
-
     private final WebClient webClient;
     private WebRequest loginRequest;
     private WebRequest passwordAndAvatarRequest;
@@ -75,7 +70,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     }
 
     private void createLoginRequest(String login) throws IOException {
-        URL loginSiteUrl = new URL(LOGIN_SITE_URL);
+        URL loginSiteUrl = new URL(UrlProvider.LOGIN_SITE_URL);
         JsonObject jsonLogin = Json.createObjectBuilder().add("login", login).build();
         String jsonLoginString = JsonUtils.writeJsonToString(jsonLogin);
         loginRequest = WebRequestFactory.createRequestPost(loginSiteUrl, jsonLoginString);
@@ -87,15 +82,14 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     }
 
     private void checkLoginMethod() {
-        JsonReader reader = Json.createReader(new StringReader(loginResponse));
-        JsonObject loginResponseJson = reader.readObject();
+        JsonObject loginResponseJson = JsonUtils.parseStringToJson(loginResponse);
         if (!loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD"))
-            // login method other than masked password is not supported
+            // login method other than masked password (aka partial password) is not supported
             throw new BadLoginMethodException();
     }
 
     private void createPasswordAndAvatarRequest(UserCredentials userCredentials) throws IOException {
-        URL passwordAndAvatarSiteUrl = new URL(PASSWORD_AND_AVATAR_SITE_URL);
+        URL passwordAndAvatarSiteUrl = new URL(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL);
         int[] maskedPasswordKeysIndexes = PasswordUtils.extractMaskedPasswordKeysIndexesFromResponse(loginResponse);
         PasswordUtils.checkPasswordLength(userCredentials.password, maskedPasswordKeysIndexes);
         String passwordAndAvatarRequestBody =
@@ -113,7 +107,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private void createBankSession() {
         bankSession = new BankSession();
         JsonArray userContextJsonArray =
-                JsonUtils.parseResponseToJsonArray(passwordAndAvatarResponse, "userContexts");
+                JsonUtils.parseStringToJsonArray(passwordAndAvatarResponse, "userContexts");
         bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
         bankSession.sessionToken = sessionToken;
     }

@@ -13,28 +13,38 @@ import static org.testng.Assert.assertEquals;
 import java.io.IOException;
 
 public class NestBankMaskedPasswordAuthenticatorTest {
+
+    private WebClient webClientStub;
+    private NestBankMaskedPasswordAuthenticator authenticator;
+
     @BeforeMethod
-    public void init() {}
+    public void init() {
+        webClientStub = new WebClientStub();
+        authenticator = new NestBankMaskedPasswordAuthenticator(webClientStub);
+    }
 
     @Test
-    public void logIntoBankAccountTest() throws IOException {
-        WebClient webClientStub = new WebClientStub();
+    public void successfulLoginTest() throws IOException {
+        UserCredentials userCredentials = getValidUserCredentials();
+        BankSession expectedBankSession = getExpectedBankSession();
 
-        NestBankMaskedPasswordAuthenticator authenticator = new NestBankMaskedPasswordAuthenticator(webClientStub);
+        BankSession testBankSession = authenticator.logIntoBankAccount(userCredentials);
 
+        assertEquals(testBankSession, expectedBankSession);
+    }
+
+    private UserCredentials getValidUserCredentials() {
         UserCredentials userCredentials = new UserCredentials();
-        userCredentials.login = "testtest";
-        userCredentials.password = "testtest123";
-        userCredentials.avatarId = 23;
+        userCredentials.login = ((WebClientStub)webClientStub).validLoginName;
+        userCredentials.password = ((WebClientStub)webClientStub).validPassword;
+        userCredentials.avatarId = ((WebClientStub)webClientStub).validAvatarId;
+        return  userCredentials;
+    }
 
-        BankSession bankSession = authenticator.logIntoBankAccount(userCredentials);
-
-        BankSession expectedBankSession = new BankSession();
-        expectedBankSession.userId = 10250313;
-        expectedBankSession.sessionToken = "GSAaq9o7oEEPKhzlPM4WMOn8YrKq+VMmTzjy/RkLQdFmY0IqEOMkmFA+Nb2NiqMY12riHsfiG" +
-                "BZjEv3SsYSY8CtLfyJhnf/gWg2HK4AAm71zCvDAS4POmw5nQc+sC/FySYAfVqJ+YlFt5dv0XPjMUV4bSEcUwpdjhNpryKo/peIaA" +
-                "gybSq4xUzD/7u2i2g/OaavCDly/2ZYE0egj6PIV/h8x1HyrZAyknjrUqE6pCf1bdOAdu5goiTnNwuicYy3J";
-
-        assertEquals(bankSession, expectedBankSession);
+    private BankSession getExpectedBankSession() {
+        BankSession bankSession = new BankSession();
+        bankSession.userId = ((WebClientStub)webClientStub).getUserId();
+        bankSession.sessionToken = ((WebClientStub)webClientStub).validSessionToken;
+        return bankSession;
     }
 }

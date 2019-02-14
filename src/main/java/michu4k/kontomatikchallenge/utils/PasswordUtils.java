@@ -12,7 +12,7 @@ import javax.json.JsonObjectBuilder;
 public class PasswordUtils {
     public static int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) {
         JsonArray maskedPasswordKeysJsonArray =
-                JsonUtils.parseResponseToJsonArray(loginResponse, "passwordKeys");
+                JsonUtils.parseStringToJsonArray(loginResponse, "passwordKeys");
         int[] maskedPasswordKeysIndexes =
                 maskedPasswordKeysJsonArray
                         .getValuesAs(JsonNumber.class)

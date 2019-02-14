@@ -16,9 +16,13 @@ public class JsonUtils {
         return writer.toString();
     }
 
-    public static JsonArray parseResponseToJsonArray(String response, String wantedArray) {
-        JsonReader reader = Json.createReader(new StringReader(response));
-        JsonObject jsonObject = reader.readObject();
+    public static JsonArray parseStringToJsonArray(String response, String wantedArray) {
+        JsonObject jsonObject = parseStringToJson(response);
         return jsonObject.getJsonArray(wantedArray);
+    }
+
+    public static JsonObject parseStringToJson(String response) {
+        JsonReader reader = Json.createReader(new StringReader(response));
+        return reader.readObject();
     }
 }

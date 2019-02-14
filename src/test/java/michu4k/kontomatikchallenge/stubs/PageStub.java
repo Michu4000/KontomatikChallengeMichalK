@@ -10,9 +10,9 @@ import java.util.Map;
 
 public class PageStub implements Page {
 
+    private URL url;
     private Map<String, String> responseHeaders;
     private String responseBody;
-    private URL url;
 
     public PageStub(String urlAddress, Map<String, String> responseHeaders, String responseBody) throws IOException {
         this.url = new URL(urlAddress);

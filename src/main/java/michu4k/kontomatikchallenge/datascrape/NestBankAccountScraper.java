@@ -3,6 +3,7 @@ package michu4k.kontomatikchallenge.datascrape;
 import michu4k.kontomatikchallenge.datastructures.BankAccount;
 import michu4k.kontomatikchallenge.datastructures.BankSession;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
+import michu4k.kontomatikchallenge.utils.UrlProvider;
 import michu4k.kontomatikchallenge.utils.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.Page;
@@ -22,9 +23,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 public class NestBankAccountScraper implements BankAccountScraper {
-    private final static String BANK_ACCOUNTS_SITE_URL_BEGINNING = "https://login.nestbank.pl/rest/v1/context/";
-    private final static String BANK_ACCOUNTS_SITE_URL_END = "/dashboard/www/config";
-
     private final WebClient webClient;
     private WebRequest bankAccountsRequest;
     private String bankAccountsResponse;
@@ -48,9 +46,9 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
     private void createBankAccountRequest(BankSession bankSession) throws IOException {
         URL bankAccountsUrl = new URL(
-                BANK_ACCOUNTS_SITE_URL_BEGINNING
+                UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING
                         + bankSession.userId
-                        + BANK_ACCOUNTS_SITE_URL_END
+                        + UrlProvider.BANK_ACCOUNTS_SITE_URL_END
         );
         bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
     }
@@ -61,7 +59,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
     }
 
     private void parseBankAccountsResponseToJsonArray() {
-        jsonBankAccounts = JsonUtils.parseResponseToJsonArray(bankAccountsResponse, "accounts");
+        jsonBankAccounts = JsonUtils.parseStringToJsonArray(bankAccountsResponse, "accounts");
     }
 
     private List<BankAccount> extractBankAccountsFromJsonArray() {
