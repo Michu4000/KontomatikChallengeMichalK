@@ -8,5 +8,4 @@ import java.util.List;
 
 public interface BankAccountScraper {
     List<BankAccount> scrapeBankAccounts(BankSession bankSession) throws IOException;
-
 }

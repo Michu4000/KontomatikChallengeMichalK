@@ -13,15 +13,12 @@ public class BankAccount {
     public boolean equals(Object obj) {
         if (obj == null)
             return false;
-
         if (!(obj instanceof BankAccount))
             return false;
-
         boolean isNameEqual = ((BankAccount) obj).accountName.equals(this.accountName);
         boolean isNumberEqual = Arrays.equals(((BankAccount) obj).accountNumber, this.accountNumber);
         boolean isBalanceEqual = ((BankAccount) obj).accountBalance.equals(this.accountBalance);
         boolean isCurrencyEqual = ((BankAccount) obj).accountCurrency.equals(this.accountCurrency);
-
         if (isNameEqual && isNumberEqual && isBalanceEqual && isCurrencyEqual)
             return true;
         else

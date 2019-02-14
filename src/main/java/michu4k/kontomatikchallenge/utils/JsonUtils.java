@@ -16,13 +16,13 @@ public class JsonUtils {
         return writer.toString();
     }
 
-    public static JsonArray parseStringToJsonArray(String str, String wantedArray) {
-        JsonObject jsonObject = parseStringToJson(str);
+    public static JsonArray parseStringToJsonArray(String jsonString, String wantedArray) {
+        JsonObject jsonObject = parseStringToJson(jsonString);
         return jsonObject.getJsonArray(wantedArray);
     }
 
-    public static JsonObject parseStringToJson(String str) {
-        JsonReader reader = Json.createReader(new StringReader(str));
+    public static JsonObject parseStringToJson(String jsonString) {
+        JsonReader reader = Json.createReader(new StringReader(jsonString));
         return reader.readObject();
     }
 }

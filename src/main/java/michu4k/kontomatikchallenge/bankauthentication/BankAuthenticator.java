@@ -7,5 +7,4 @@ import java.io.IOException;
 
 public interface BankAuthenticator {
     BankSession logIntoBankAccount(UserCredentials userCredentials) throws IOException;
-
 }

@@ -5,7 +5,6 @@ import com.gargoylesoftware.htmlunit.WebResponse;
 import java.util.Map;
 
 class WebResponseStub extends WebResponse {
-
     private final Map<String, String> responseHeaders;
     private final String responseBody;
 

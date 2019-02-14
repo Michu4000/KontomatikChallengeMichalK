@@ -9,7 +9,6 @@ import java.net.URL;
 import java.util.Map;
 
 public class PageStub implements Page {
-
     private URL url;
     private Map<String, String> responseHeaders;
     private String responseBody;
