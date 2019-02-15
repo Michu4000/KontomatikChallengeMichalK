@@ -43,23 +43,35 @@ public class NestBankAccountScraperTest {
     }
 
     private List<BankAccount> getExpectedBankAccounts() {
+        BankAccount expectedBankAccountRegular = getExpectedBankAccountRegular();
+        BankAccount expectedBankAccountSavings = getExpectedBankAccountSavings();
+        List<BankAccount> expectedBankAccounts = new ArrayList<>();
+        expectedBankAccounts.add(expectedBankAccountRegular);
+        expectedBankAccounts.add(expectedBankAccountSavings);
+        return expectedBankAccounts;
+    }
+
+    private BankAccount getExpectedBankAccountRegular() {
+        BankAccount expectedBankAccountRegular = getExpectedBankAccount();
         int[] accountNumberRegular = {6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 1, 1, 1, 1, 0, 0, 0, 0};
-        BankAccount bankAccountRegular = new BankAccount();
-        bankAccountRegular.accountName = "Nest Konto";
-        bankAccountRegular.accountNumber = accountNumberRegular;
-        bankAccountRegular.accountBalance = new BigDecimal("2000.00");
-        bankAccountRegular.accountCurrency = "PLN";
+        expectedBankAccountRegular.accountName = "Nest Konto";
+        expectedBankAccountRegular.accountNumber = accountNumberRegular;
+        expectedBankAccountRegular.accountBalance = new BigDecimal("2000.00");
+        return expectedBankAccountRegular;
+    }
 
+    private BankAccount getExpectedBankAccountSavings() {
+        BankAccount expectedBankAccountSavings = getExpectedBankAccount();
         int[] accountNumberSavings = {0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6 ,6, 6};
-        BankAccount bankAccountSavings = new BankAccount();
-        bankAccountSavings.accountName = "Nest Oszczędności";
-        bankAccountSavings.accountNumber = accountNumberSavings;
-        bankAccountSavings.accountBalance = new BigDecimal("3000.00");
-        bankAccountSavings.accountCurrency = "PLN";
+        expectedBankAccountSavings.accountName = "Nest Oszczędności";
+        expectedBankAccountSavings.accountNumber = accountNumberSavings;
+        expectedBankAccountSavings.accountBalance = new BigDecimal("3000.00");
+        return expectedBankAccountSavings;
+    }
 
-        List<BankAccount> bankAccounts = new ArrayList<>();
-        bankAccounts.add(bankAccountRegular);
-        bankAccounts.add(bankAccountSavings);
-        return bankAccounts;
+    private BankAccount getExpectedBankAccount() {
+        BankAccount expectedBankAccount = new BankAccount();
+        expectedBankAccount.accountCurrency = "PLN";
+        return expectedBankAccount;
     }
 }

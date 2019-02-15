@@ -38,35 +38,33 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
     @Override
     public BankSession logIntoBankAccount(UserCredentials userCredentials) throws IOException {
+        enterLogin(userCredentials.login);
+        enterPasswordAndAvatar(userCredentials);
+        return bankSession;
+    }
+
+    private void enterLogin(String login) throws IOException {
         try {
-            enterLogin(userCredentials.login);
+            createLoginRequest(login);
+            sendLoginRequest();
+            checkLoginMethod();
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadLoginNameException(failingHttpStatusCodeException);
         } catch (JsonException | IllegalStateException | NullPointerException jsonException) {
             throw new IOException(jsonException);
         }
+    }
 
+    private void enterPasswordAndAvatar(UserCredentials userCredentials) throws IOException {
         try {
-            enterPasswordAndAvatar(userCredentials);
+            createPasswordAndAvatarRequest(userCredentials);
+            sendPasswordAndAvatarRequest();
+            createBankSession();
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadCredentialsException(failingHttpStatusCodeException);
         } catch (JsonException | IllegalStateException | ClassCastException | NullPointerException jsonException) {
             throw new IOException(jsonException);
         }
-
-        return bankSession;
-    }
-
-    private void enterLogin(String login) throws IOException {
-        createLoginRequest(login);
-        sendLoginRequest();
-        checkLoginMethod();
-    }
-
-    private void enterPasswordAndAvatar(UserCredentials userCredentials) throws IOException {
-        createPasswordAndAvatarRequest(userCredentials);
-        sendPasswordAndAvatarRequest();
-        createBankSession();
     }
 
     private void createLoginRequest(String login) throws IOException {
@@ -83,8 +81,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
     private void checkLoginMethod() {
         JsonObject loginResponseJson = JsonUtils.parseStringToJson(loginResponse);
-        if (!loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD"))
-            // login method other than masked password (aka partial password) is not supported
+        if (!isLoginMethodMaskedPassword(loginResponseJson))
             throw new BadLoginMethodException();
     }
 
@@ -110,5 +107,9 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
                 JsonUtils.parseStringToJsonArray(passwordAndAvatarResponse, "userContexts");
         bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
         bankSession.sessionToken = sessionToken;
+    }
+
+    private boolean isLoginMethodMaskedPassword(JsonObject loginResponseJson) {
+        return loginResponseJson.getString("loginProcess").equals("PARTIAL_PASSWORD");
     }
 }

@@ -28,6 +28,8 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import java.io.IOException;
 import java.util.List;
 
+//TODO ACCEPTANCE TESTs with different scenarios (successful login, bad login, bad password) using real bank system
+
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
@@ -37,26 +39,19 @@ public class Main {
     private static List<BankAccount> bankAccounts;
 
     public static void main(String[] args) {
-        try {
-            enterCredentials(args);
-        } catch (BadArgumentsException badArgumentsException) {
-            ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
-        }
-
+        enterCredentials(args);
         setupConnection();
-
-        try {
-            signIn();
-            importBankAccounts();
-        } catch (BadCredentialsException | BadLoginMethodException | IOException exception) {
-            ErrorsHandler.handleException(exception, DEBUG_MODE);
-        }
-
-        UserInterface.printBankAccounts(bankAccounts);
+        signIn();
+        importBankAccounts();
+        printBankAccounts();
     }
 
     private static void enterCredentials(String[] args) {
-        userCredentials = UserInterface.findOutUserCredentials(args);
+        try {
+            userCredentials = UserInterface.findOutUserCredentials(args);
+        } catch (BadArgumentsException badArgumentsException) {
+            ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
+        }
     }
 
     private static void setupConnection() {
@@ -66,13 +61,25 @@ public class Main {
             webClient = WebClientFactory.getWebClientWithProxy();
     }
 
-    private static void signIn() throws IOException {
+    private static void signIn() {
         BankAuthenticator bankAuthenticator = new NestBankMaskedPasswordAuthenticator(webClient);
-        bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
+        try {
+            bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
+        } catch (BadCredentialsException | BadLoginMethodException | IOException exception) {
+            ErrorsHandler.handleException(exception, DEBUG_MODE);
+        }
     }
 
-    private static void importBankAccounts() throws IOException {
+    private static void importBankAccounts() {
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
-        bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
+        try {
+            bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
+        } catch (IOException ioException) {
+            ErrorsHandler.handleException(ioException, DEBUG_MODE);
+        }
+    }
+
+    private static void printBankAccounts() {
+        UserInterface.printBankAccounts(bankAccounts);
     }
 }

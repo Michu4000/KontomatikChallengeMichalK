@@ -24,8 +24,7 @@ public class PasswordUtils {
 
     public static void checkPasswordLength(String password, int[] maskedPasswordKeysIndexes) {
         int minLength = maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length - 1];
-        if (minLength > password.length())
-            // entered password is shorter than expected
+        if (!isPasswordLongEnough(minLength, password.length()))
             throw new BadPasswordException();
     }
 
@@ -53,5 +52,9 @@ public class PasswordUtils {
             );
         }
         return maskedPasswordBuilder;
+    }
+
+    private static boolean isPasswordLongEnough(int minLength, int passwordLength) {
+        return passwordLength >= minLength;
     }
 }

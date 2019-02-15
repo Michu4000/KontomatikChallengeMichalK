@@ -11,26 +11,15 @@ public class UserInterface {
 
     public static UserCredentials findOutUserCredentials(String[] args) {
         checkNumberOfArguments(args.length);
-        try {
-            UserCredentials userCredentials = fillCredentials(args);
-            checkForBlankCredentials(userCredentials);
-            return userCredentials;
-        } catch (NumberFormatException numberFormatException) {
-            throw new BadArgumentsException(numberFormatException);
-        }
+        UserCredentials userCredentials = fillCredentials(args);
+        checkForBlankCredentials(userCredentials);
+        return userCredentials;
     }
 
     public static void printBankAccounts(List<BankAccount> bankAccounts) {
         System.out.println(OUTPUT_MSG_HEADER);
-        for (int bankAccountIdx = 0; bankAccountIdx < bankAccounts.size(); bankAccountIdx++) {
-            BankAccountPrinter.printBankAccountIdx(bankAccountIdx);
-            BankAccountPrinter.printBankAccountName(bankAccounts.get(bankAccountIdx).accountName);
-            BankAccountPrinter.printBankAccountNumber(bankAccounts.get(bankAccountIdx).accountNumber);
-            BankAccountPrinter.printBankAccountBalance(
-                    bankAccounts.get(bankAccountIdx).accountBalance,
-                    bankAccounts.get(bankAccountIdx).accountCurrency
-            );
-        }
+        for (int bankAccountIdx = 0; bankAccountIdx < bankAccounts.size(); bankAccountIdx++)
+            BankAccountPrinter.printBankAccount(bankAccountIdx, bankAccounts.get(bankAccountIdx));
     }
 
     private static void checkNumberOfArguments(int argsCount) {
@@ -42,7 +31,11 @@ public class UserInterface {
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.login = credentials[0];
         userCredentials.password = credentials[1];
-        userCredentials.avatarId = Integer.parseInt(credentials[2]);
+        try {
+            userCredentials.avatarId = Integer.parseInt(credentials[2]);
+        } catch (NumberFormatException numberFormatException) {
+            throw new BadArgumentsException(numberFormatException);
+        }
         return userCredentials;
     }
 
