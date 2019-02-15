@@ -13,7 +13,7 @@ class BankAccountPrinter {
     }
 
     private static void printBankAccountIdx(int accountIdx) {
-        System.out.println("#" + accountIdx);
+        System.out.println("#" + (accountIdx + 1));
     }
 
     private static void printBankAccountName(String accountName) {

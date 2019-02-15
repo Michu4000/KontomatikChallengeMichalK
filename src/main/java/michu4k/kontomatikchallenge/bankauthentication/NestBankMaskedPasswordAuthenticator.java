@@ -17,7 +17,6 @@ import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 
 import javax.json.JsonObject;
 import javax.json.Json;
-import javax.json.JsonException;
 import javax.json.JsonArray;
 
 import java.io.IOException;
@@ -50,8 +49,6 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             checkLoginMethod();
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadLoginNameException(failingHttpStatusCodeException);
-        } catch (JsonException | IllegalStateException | NullPointerException jsonException) {
-            throw new IOException(jsonException);
         }
     }
 
@@ -62,8 +59,6 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             createBankSession();
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
             throw new BadCredentialsException(failingHttpStatusCodeException);
-        } catch (JsonException | IllegalStateException | ClassCastException | NullPointerException jsonException) {
-            throw new IOException(jsonException);
         }
     }
 

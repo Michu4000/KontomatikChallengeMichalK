@@ -11,7 +11,6 @@ import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 
-import javax.json.JsonException;
 import javax.json.JsonArray;
 
 import java.io.IOException;
@@ -50,11 +49,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
         bankAccountsResponse = bankAccountsPage.getWebResponse().getContentAsString();
     }
 
-    private void parseBankAccountsResponseToJsonArray() throws IOException {
-        try {
-            jsonBankAccounts = JsonUtils.parseStringToJsonArray(bankAccountsResponse, "accounts");
-        } catch (JsonException | IllegalStateException | ClassCastException | NullPointerException jsonException) {
-            throw new IOException(jsonException);
-        }
+    private void parseBankAccountsResponseToJsonArray() {
+        jsonBankAccounts = JsonUtils.parseStringToJsonArray(bankAccountsResponse, "accounts");
     }
 }

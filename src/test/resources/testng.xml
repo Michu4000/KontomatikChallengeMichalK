@@ -2,10 +2,22 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 <suite name = "Suite1" verbose = "1">
    <test name = "test1">
+
+      <parameter name = "validLoginName" value="..."/>
+      <parameter name = "validPassword" value="..."/>
+      <parameter name = "validAvatarId" value="..."/>
+
+      <parameter name = "tooShortLoginName" value="test"/>
+      <parameter name = "badLoginName" value="testtest"/>
+      <parameter name = "tooShortPassword" value="123"/>
+      <parameter name = "badPassword" value="testtest123456789"/>
+      <parameter name = "badAvatarId" value="13"/>
+
       <classes>
          <class name = "michu4k.kontomatikchallenge.testngtest.TestNGSimpleTest"/>
          <class name = "michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticatorTest"/>
          <class name = "michu4k.kontomatikchallenge.datascrape.NestBankAccountScraperTest"/>
+         <class name = "michu4k.kontomatikchallenge.acceptancetests.AcceptanceTests"/>
       </classes>
    </test>
 </suite>

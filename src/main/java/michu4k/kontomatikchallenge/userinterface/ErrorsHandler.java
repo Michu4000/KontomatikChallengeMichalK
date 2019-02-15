@@ -9,28 +9,31 @@ public class ErrorsHandler {
     public static void handleException(Exception exception, boolean debugMode) {
         if (debugMode)
             exception.printStackTrace();
-        printErrorAndExit(exception);
+        printError(exception);
     }
 
-    private static void printErrorAndExit(Exception exception) {
+    private static void printError(Exception exception) {
         switch(exception.getClass().getSimpleName()) {
             case "BadArgumentsException":
                 printArgumentsError();
-                System.exit(2);
                 break;
             case "IOException":
+            case "JsonException":
+            case "JsonParsingException":
+            case "IllegalStateException":
+            case "NullPointerException":
+            case "ClassCastException":
                 printConnectionError();
-                System.exit(1);
                 break;
             case "BadCredentialsException":
             case "BadLoginNameException":
             case "BadPasswordException":
                 printBadCredentialsError();
-                System.exit(2);
                 break;
+            case "NumberFormatException":
+            case "MalformedURLException":
             default:
                 printInternalApplicationError();
-                System.exit(3);
                 break;
         }
     }
