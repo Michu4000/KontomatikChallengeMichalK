@@ -36,11 +36,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
     }
 
     private void createBankAccountRequest(BankSession bankSession) throws IOException {
-        URL bankAccountsUrl = new URL(
-                UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING
-                        + bankSession.userId
-                        + UrlProvider.BANK_ACCOUNTS_SITE_URL_END
-        );
+        URL bankAccountsUrl = new URL(UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + bankSession.userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END);
         bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
     }
 

@@ -15,6 +15,8 @@ import javax.json.JsonObject;
 
 import java.io.IOException;
 
+//TODO split into 2 classes (or more)
+
 public class WebClientStub extends WebClient {
     private final static String DEFAULT_LOGIN_NAME = "testtest";
     private final static String DEFAULT_PASSWORD = "testtest123";
@@ -52,8 +54,7 @@ public class WebClientStub extends WebClient {
     }
 
     private void setBankAccountSite(int userId) {
-        BankAccountSiteUrl =
-                UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
+        BankAccountSiteUrl = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
     }
 
     @Override
@@ -75,8 +76,7 @@ public class WebClientStub extends WebClient {
         if(!checkHeadersInRequestPost())
             return;
         if(checkLoginRequestBody(request.getRequestBody()))
-            outputPage = PageResponseFactory
-                    .getPageValidLogin(maskedPasswordMethod, validPassword.length(), validMaskedPasswordKeysIndexes);
+            outputPage = PageResponseFactory.getPageValidLogin(maskedPasswordMethod, validPassword.length(), validMaskedPasswordKeysIndexes);
         else
             outputPage = PageResponseFactory.getPageBadLogin();
     }
@@ -168,8 +168,7 @@ public class WebClientStub extends WebClient {
         JsonObject jsonObject = JsonUtils.parseStringToJson(requestBody);
         if (!jsonObject.getString("login").equals(validLoginName))
             return false;
-        JsonObject maskedPasswordJson =
-                PasswordUtils.buildMaskedPassword(validMaskedPasswordKeysIndexes, validPassword).build();
+        JsonObject maskedPasswordJson = PasswordUtils.buildMaskedPassword(validMaskedPasswordKeysIndexes, validPassword).build();
         if (!jsonObject.getJsonObject("maskedPassword").equals(maskedPasswordJson))
             return false;
         if (jsonObject.getInt("avatarId") != validAvatarId)

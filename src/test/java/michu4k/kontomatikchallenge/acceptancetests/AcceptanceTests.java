@@ -39,11 +39,14 @@ public class AcceptanceTests {
     private int expectedOutputBeginningLength;
     private String testOutputBeginning;
 
-    @BeforeClass void testInit() {
+    @BeforeClass
+    void testInit() {
         WebClient webClient = WebClientFactory.getWebClient();
         bankAuthenticator = new NestBankMaskedPasswordAuthenticator(webClient);
         bankAccountScraper = new NestBankAccountScraper(webClient);
     }
+
+    //TODO DON'T CATCH STDOUT
 
     @BeforeMethod
     public void changePrintStreamForCapture() {
@@ -59,10 +62,11 @@ public class AcceptanceTests {
         System.setOut(standardPrintStream);
     }
 
+
+    //TODO split into logIn and ImportAccounts (separated classes + one with common functions)
     @Test
     @Parameters({"validLoginName", "validPassword", "validAvatarId"})
-    public void successfulLoginAndImportBankAccountTest(String validLoginName, String validPassword, String validAvatarId)
-            throws  IOException {
+    public void successfulLoginAndImportBankAccountTest(String validLoginName, String validPassword, String validAvatarId) throws IOException {
         setExpectedOutputBeginning("NEST ACCOUNTS BALANCES:\n#1");
 
         startTest(new String[] { validLoginName, validPassword, validAvatarId });
@@ -71,43 +75,41 @@ public class AcceptanceTests {
     }
 
     @Test(expectedExceptions = BadArgumentsException.class)
-    public void badFunctionArgumentsTest() throws  IOException {
+    public void badFunctionArgumentsTest() throws IOException {
         startTest(new String[]{"1", "2", "3", "4"});
     }
 
     @Test(expectedExceptions = BadLoginNameException.class)
     @Parameters({"tooShortLoginName", "validPassword", "validAvatarId"})
-    public void loginTooShortTest(String tooShortLoginName, String validPassword, String validAvatarId)
-            throws  IOException {
+    public void loginTooShortTest(String tooShortLoginName, String validPassword, String validAvatarId) throws IOException {
         startTest(new String[] { tooShortLoginName, validPassword, validAvatarId });
     }
 
 
     @Test(expectedExceptions = BadCredentialsException.class)
     @Parameters({"badLoginName", "validPassword", "validAvatarId"})
-    public void badLoginTest(String badLoginName, String validPassword, String validAvatarId) throws  IOException {
+    public void badLoginTest(String badLoginName, String validPassword, String validAvatarId) throws IOException {
         startTest(new String[] { badLoginName, validPassword, validAvatarId });
     }
 
     @Test
     (dependsOnMethods = { "successfulLoginAndImportBankAccountTest" }, expectedExceptions = BadPasswordException.class)
     @Parameters({"validLoginName", "tooShortPassword", "validAvatarId"})
-    public void passwordTooShortTest(String validLoginName, String tooShortPassword, String validAvatarId)
-            throws  IOException {
+    public void passwordTooShortTest(String validLoginName, String tooShortPassword, String validAvatarId) throws IOException {
         startTest(new String[] { validLoginName, tooShortPassword, validAvatarId });
     }
 
     @Test
     (dependsOnMethods = { "successfulLoginAndImportBankAccountTest" }, expectedExceptions = BadCredentialsException.class)
     @Parameters({"validLoginName", "badPassword", "validAvatarId"})
-    public void badPasswordTest(String validLoginName, String badPassword, String validAvatarId) throws  IOException {
+    public void badPasswordTest(String validLoginName, String badPassword, String validAvatarId) throws IOException {
         startTest(new String[] { validLoginName, badPassword, validAvatarId });
     }
 
     @Test
     (dependsOnMethods = { "successfulLoginAndImportBankAccountTest" }, expectedExceptions = BadCredentialsException.class)
     @Parameters({"validLoginName", "validPassword", "badAvatarId"})
-    public void badAvatarIdTest(String validLoginName, String validPassword, String badAvatarId) throws  IOException {
+    public void badAvatarIdTest(String validLoginName, String validPassword, String badAvatarId) throws IOException {
         startTest(new String[] { validLoginName, validPassword, badAvatarId });
     }
 
@@ -129,8 +131,6 @@ public class AcceptanceTests {
     }
 
     private void setTestOutputBeginning() {
-        testOutputBeginning =
-                new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8)
-                        .substring(0, expectedOutputBeginningLength);
+        testOutputBeginning = new String(byteArrayOutputStream.toByteArray(), StandardCharsets.UTF_8).substring(0, expectedOutputBeginningLength);
     }
 }

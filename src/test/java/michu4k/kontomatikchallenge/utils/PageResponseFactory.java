@@ -9,21 +9,20 @@ import java.util.Map;
 
 import michu4k.kontomatikchallenge.stubs.PageStub;
 
+//TODO split into 2 classes (or more)
+
 public class PageResponseFactory {
     public static Page getPageBadLogin() throws IOException {
         return getPage(UrlProvider.LOGIN_SITE_URL, PageResponseBodyProvider.BAD_LOGIN);
     }
 
-    public static Page getPageValidLogin(boolean maskedPasswordMethod, int passwordLength, int[] maskedPasswordKeysIndexes)
-            throws IOException {
+    public static Page getPageValidLogin(boolean maskedPasswordMethod, int passwordLength, int[] maskedPasswordKeysIndexes) throws IOException {
         String responseBody;
         if(maskedPasswordMethod) {
             responseBody = PageResponseBodyProvider.VALID_LOGIN_BEGINNING + "\"passwordLength\":" + passwordLength +
                     ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
         } else {
-            responseBody =
-                    PageResponseBodyProvider.VALID_LOGIN_BEGINNING +
-                    PageResponseBodyProvider.VALID_LOGIN_METHOD_FULL_PASSWORD;
+            responseBody = PageResponseBodyProvider.VALID_LOGIN_BEGINNING + PageResponseBodyProvider.VALID_LOGIN_METHOD_FULL_PASSWORD;
         }
         return getPage(UrlProvider.LOGIN_SITE_URL, responseBody);
     }
@@ -31,10 +30,7 @@ public class PageResponseFactory {
     public static Page getPageValidPasswordAndAvatar(String sessionToken, int userId) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Session-Token", sessionToken);
-        String responseBody =
-                PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_BEGINNING +
-                userId +
-                PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_END;
+        String responseBody = PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_BEGINNING + userId + PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_END;
         return getPage(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL, responseHeaders, responseBody);
     }
 
@@ -87,13 +83,11 @@ public class PageResponseFactory {
         return getPage(urlAddress, "BAD ACCEPT LANGUAGE");
     }
 
-    private static Page getPage(String urlAddress, String responseBody)
-            throws IOException {
+    private static Page getPage(String urlAddress, String responseBody) throws IOException {
         return getPage(urlAddress, new HashMap<>(), responseBody);
     }
 
-    private static Page getPage(String urlAddress, Map<String, String> responseHeaders, String responseBody)
-            throws IOException {
+    private static Page getPage(String urlAddress, Map<String, String> responseHeaders, String responseBody) throws IOException {
         return new PageStub(urlAddress, responseHeaders, responseBody);
     }
 }

@@ -6,6 +6,8 @@ import com.gargoylesoftware.htmlunit.WebRequest;
 import java.net.URL;
 
 public class WebRequestFactory {
+    private final static String REQUEST_POST_REFERER_URL = UrlProvider.DOMAIN_URL + "login";
+    private final static String REQUEST_GET_REFERER_URL = UrlProvider.DOMAIN_URL + "dashboard/products";
     private final static String REQUEST_POST_CONTENT_TYPE = "application/json";
     private final static String REQUEST_GET_CONTENT_TYPE = "text/plain";
     private final static String REQUEST_ACCEPT_ENCODING = "gzip, deflate";
@@ -14,7 +16,7 @@ public class WebRequestFactory {
     public static WebRequest createRequestPost(URL url, String requestContent) {
         WebRequest requestPost = createRequest(new WebRequest(url, HttpMethod.POST));
         requestPost.setAdditionalHeader("Content-Type", REQUEST_POST_CONTENT_TYPE);
-        requestPost.setAdditionalHeader("Referer", UrlProvider.REQUEST_POST_REFERER_URL);
+        requestPost.setAdditionalHeader("Referer", REQUEST_POST_REFERER_URL);
         requestPost.setRequestBody(requestContent);
         return requestPost;
     }
@@ -22,7 +24,7 @@ public class WebRequestFactory {
     public static WebRequest createRequestGet(URL url, String sessionToken) {
         WebRequest requestGet = createRequest(new WebRequest(url, HttpMethod.GET));
         requestGet.setAdditionalHeader("Content-Type", REQUEST_GET_CONTENT_TYPE);
-        requestGet.setAdditionalHeader("Referer", UrlProvider.REQUEST_GET_REFERER_URL);
+        requestGet.setAdditionalHeader("Referer", REQUEST_GET_REFERER_URL);
         requestGet.setAdditionalHeader("Session-Token", sessionToken);
         return requestGet;
     }

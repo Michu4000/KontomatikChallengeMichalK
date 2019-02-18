@@ -15,8 +15,8 @@
 
       <classes>
          <class name = "michu4k.kontomatikchallenge.testngtest.TestNGSimpleTest"/>
-         <class name = "michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticatorTest"/>
-         <class name = "michu4k.kontomatikchallenge.datascrape.NestBankAccountScraperTest"/>
+         <class name = "michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticatorUnitTest"/>
+         <class name = "michu4k.kontomatikchallenge.datascrape.NestBankAccountScraperUnitTest"/>
          <class name = "michu4k.kontomatikchallenge.acceptancetests.AcceptanceTests"/>
       </classes>
    </test>

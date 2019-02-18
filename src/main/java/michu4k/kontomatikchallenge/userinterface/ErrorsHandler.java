@@ -9,10 +9,10 @@ public class ErrorsHandler {
     public static void handleException(Exception exception, boolean debugMode) {
         if (debugMode)
             exception.printStackTrace();
-        printError(exception);
+        printErrorAndExit(exception);
     }
 
-    private static void printError(Exception exception) {
+    private static void printErrorAndExit(Exception exception) {
         switch(exception.getClass().getSimpleName()) {
             case "BadArgumentsException":
                 printArgumentsError();

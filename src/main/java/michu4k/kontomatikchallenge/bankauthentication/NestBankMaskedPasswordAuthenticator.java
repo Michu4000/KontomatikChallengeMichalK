@@ -84,10 +84,8 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         URL passwordAndAvatarSiteUrl = new URL(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL);
         int[] maskedPasswordKeysIndexes = PasswordUtils.extractMaskedPasswordKeysIndexesFromResponse(loginResponse);
         PasswordUtils.checkPasswordLength(userCredentials.password, maskedPasswordKeysIndexes);
-        String passwordAndAvatarRequestBody =
-                PasswordUtils.buildPasswordAndAvatarRequestBody(maskedPasswordKeysIndexes, userCredentials);
-        passwordAndAvatarRequest =
-                WebRequestFactory.createRequestPost(passwordAndAvatarSiteUrl, passwordAndAvatarRequestBody);
+        String passwordAndAvatarRequestBody = PasswordUtils.buildPasswordAndAvatarRequestBody(maskedPasswordKeysIndexes, userCredentials);
+        passwordAndAvatarRequest = WebRequestFactory.createRequestPost(passwordAndAvatarSiteUrl, passwordAndAvatarRequestBody);
     }
 
     private void sendPasswordAndAvatarRequest() throws IOException {
@@ -98,8 +96,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
 
     private void createBankSession() {
         bankSession = new BankSession();
-        JsonArray userContextJsonArray =
-                JsonUtils.parseStringToJsonArray(passwordAndAvatarResponse, "userContexts");
+        JsonArray userContextJsonArray = JsonUtils.parseStringToJsonArray(passwordAndAvatarResponse, "userContexts");
         bankSession.userId = userContextJsonArray.getJsonObject(0).getInt("id");
         bankSession.sessionToken = sessionToken;
     }

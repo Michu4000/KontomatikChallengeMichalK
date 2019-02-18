@@ -23,8 +23,7 @@ class BankAccountFormatter {
         return formattedAccountNumberBuilder;
     }
 
-    private static StringBuilder getGroupedEvery4Digits(
-            String unformattedAccountNumber, StringBuilder formattedAccountNumberBuilder) {
+    private static StringBuilder getGroupedEvery4Digits(String unformattedAccountNumber, StringBuilder formattedAccountNumberBuilder) {
         for (int i = 2; i <= 22; i += 4) {
             formattedAccountNumberBuilder
                     .append(" ")

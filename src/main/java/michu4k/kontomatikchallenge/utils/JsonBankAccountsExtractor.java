@@ -29,9 +29,7 @@ public class JsonBankAccountsExtractor {
     }
 
     private static int[] extractNumber(JsonValue jsonBankAccount) {
-        Stream<String> bankAccountNumberStream = Arrays.stream(
-                jsonBankAccount.asJsonObject().getString("nrb").split("")
-        );
+        Stream<String> bankAccountNumberStream = Arrays.stream(jsonBankAccount.asJsonObject().getString("nrb").split(""));
         return bankAccountNumberStream.mapToInt(Integer::parseInt).toArray();
     }
 

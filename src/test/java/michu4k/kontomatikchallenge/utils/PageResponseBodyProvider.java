@@ -1,5 +1,7 @@
 package michu4k.kontomatikchallenge.utils;
 
+//TODO extract string to text file and read file (different commit)
+
 class PageResponseBodyProvider {
     static final String BAD_LOGIN =
             "{\"level\":\"ERROR\",\"problems\":[{\"level\":\"ERROR\",\"objectId\":null,\"objectIdsList\":[]," +

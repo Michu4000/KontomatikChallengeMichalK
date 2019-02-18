@@ -11,14 +11,12 @@ import javax.json.JsonObjectBuilder;
 
 public class PasswordUtils {
     public static int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) {
-        JsonArray maskedPasswordKeysJsonArray =
-                JsonUtils.parseStringToJsonArray(loginResponse, "passwordKeys");
-        int[] maskedPasswordKeysIndexes =
-                maskedPasswordKeysJsonArray
-                        .getValuesAs(JsonNumber.class)
-                        .stream()
-                        .mapToInt(JsonNumber::intValue)
-                        .toArray();
+        JsonArray maskedPasswordKeysJsonArray = JsonUtils.parseStringToJsonArray(loginResponse, "passwordKeys");
+        int[] maskedPasswordKeysIndexes = maskedPasswordKeysJsonArray
+                                                .getValuesAs(JsonNumber.class)
+                                                .stream()
+                                                .mapToInt(JsonNumber::intValue)
+                                                .toArray();
         return maskedPasswordKeysIndexes;
     }
 
@@ -28,12 +26,9 @@ public class PasswordUtils {
             throw new BadPasswordException();
     }
 
-    public static String buildPasswordAndAvatarRequestBody(
-            int[] maskedPasswordKeysIndexes, UserCredentials userCredentials
-    ) {
+    public static String buildPasswordAndAvatarRequestBody(int[] maskedPasswordKeysIndexes, UserCredentials userCredentials) {
         JsonObjectBuilder masterBuilder = Json.createObjectBuilder();
-        JsonObjectBuilder maskedPasswordBuilder =
-                buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials.password);
+        JsonObjectBuilder maskedPasswordBuilder = buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials.password);
         masterBuilder
                 .add("login", userCredentials.login)
                 .add("maskedPassword", maskedPasswordBuilder)

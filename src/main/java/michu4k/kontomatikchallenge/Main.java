@@ -29,6 +29,8 @@ import javax.json.JsonException;
 import java.io.IOException;
 import java.util.List;
 
+//TODO pom.xml for auto run-configuration
+
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
@@ -38,14 +40,14 @@ public class Main {
     private static List<BankAccount> bankAccounts;
 
     public static void main(String[] args) {
-        enterCredentials(args);
+        readUserCredentials(args);
         setupConnection();
         signIn();
         importBankAccounts();
         printBankAccounts();
     }
 
-    private static void enterCredentials(String[] args) {
+    private static void readUserCredentials(String[] args) {
         try {
             userCredentials = UserInterface.findOutUserCredentials(args);
         } catch (BadArgumentsException badArgumentsException) {

@@ -12,7 +12,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 
-public class NestBankMaskedPasswordAuthenticatorTest {
+public class NestBankMaskedPasswordAuthenticatorUnitTest {
     private WebClient webClientStub;
     private NestBankMaskedPasswordAuthenticator authenticator;
 
