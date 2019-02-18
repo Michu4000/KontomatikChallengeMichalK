@@ -13,16 +13,16 @@ import michu4k.kontomatikchallenge.stubs.PageStub;
 
 public class PageResponseFactory {
     public static Page getPageBadLogin() throws IOException {
-        return getPage(UrlProvider.LOGIN_SITE_URL, PageResponseBodyProvider.BAD_LOGIN);
+        return getPage(UrlProvider.LOGIN_SITE_URL, PageResponseBodyProvider.getBadLogin());
     }
 
     public static Page getPageValidLogin(boolean maskedPasswordMethod, int passwordLength, int[] maskedPasswordKeysIndexes) throws IOException {
         String responseBody;
         if(maskedPasswordMethod) {
-            responseBody = PageResponseBodyProvider.VALID_LOGIN_BEGINNING + "\"passwordLength\":" + passwordLength +
+            responseBody = PageResponseBodyProvider.getValidLoginBeginning() + "\"passwordLength\":" + passwordLength +
                     ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
         } else {
-            responseBody = PageResponseBodyProvider.VALID_LOGIN_BEGINNING + PageResponseBodyProvider.VALID_LOGIN_METHOD_FULL_PASSWORD;
+            responseBody = PageResponseBodyProvider.getValidLoginBeginning() + PageResponseBodyProvider.getValidLoginEnd();
         }
         return getPage(UrlProvider.LOGIN_SITE_URL, responseBody);
     }
@@ -30,17 +30,17 @@ public class PageResponseFactory {
     public static Page getPageValidPasswordAndAvatar(String sessionToken, int userId) throws IOException {
         Map<String, String> responseHeaders = new HashMap<>();
         responseHeaders.put("Session-Token", sessionToken);
-        String responseBody = PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_BEGINNING + userId + PageResponseBodyProvider.VALID_PASSWORD_AND_AVATAR_END;
+        String responseBody = PageResponseBodyProvider.getValidPasswordAndAvatarBeginning() + userId + PageResponseBodyProvider.getValidPasswordAndAvatarEnd();
         return getPage(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL, responseHeaders, responseBody);
     }
 
     public static Page getPageBadPasswordAndAvatar() throws IOException {
-        return getPage(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL, PageResponseBodyProvider.BAD_PASSWORD_AND_AVATAR);
+        return getPage(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL, PageResponseBodyProvider.getBadPasswordAndAvatar());
     }
 
     public static Page getPageValidBankAccounts(int userId) throws IOException {
         String urlAddress = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
-        return getPage(urlAddress, PageResponseBodyProvider.VALID_BANK_ACCOUNTS);
+        return getPage(urlAddress, PageResponseBodyProvider.getValidBankAccounts());
     }
 
     public static Page getPageBadUrl() throws IOException { // http 404
@@ -65,7 +65,7 @@ public class PageResponseFactory {
 
     public static Page getPageBadSessionToken(int userId) throws IOException { // http 401
         String urlAddress = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
-        return getPage(urlAddress, PageResponseBodyProvider.BAD_SESSION_TOKEN);
+        return getPage(urlAddress, PageResponseBodyProvider.getBadSessionToken());
     }
 
     public static Page getPageBadAcceptHeader() throws IOException { // ignored by server, it's working normal way

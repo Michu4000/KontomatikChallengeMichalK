@@ -1,0 +1,1 @@
+"loginProcess":"FULL_PASSWORD"}

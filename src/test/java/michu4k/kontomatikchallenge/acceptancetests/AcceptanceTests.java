@@ -46,7 +46,7 @@ public class AcceptanceTests {
         bankAccountScraper = new NestBankAccountScraper(webClient);
     }
 
-    //TODO DON'T CATCH STDOUT
+    //TODO DON'T CAPTURE STDOUT
 
     @BeforeMethod
     public void changePrintStreamForCapture() {
