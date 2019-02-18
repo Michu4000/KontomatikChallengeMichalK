@@ -16,6 +16,7 @@ public class ErrorsHandler {
         switch(exception.getClass().getSimpleName()) {
             case "BadArgumentsException":
                 printArgumentsError();
+                System.exit(2);
                 break;
             case "IOException":
             case "JsonException":
@@ -24,16 +25,19 @@ public class ErrorsHandler {
             case "NullPointerException":
             case "ClassCastException":
                 printConnectionError();
+                System.exit(1);
                 break;
             case "BadCredentialsException":
             case "BadLoginNameException":
             case "BadPasswordException":
                 printBadCredentialsError();
+                System.exit(2);
                 break;
             case "NumberFormatException":
             case "MalformedURLException":
             default:
                 printInternalApplicationError();
+                System.exit(3);
                 break;
         }
     }

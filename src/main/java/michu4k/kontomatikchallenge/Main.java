@@ -38,20 +38,19 @@ public class Main {
     private static List<BankAccount> bankAccounts;
 
     public static void main(String[] args) {
-        try {
-            enterCredentials(args);
-            setupConnection();
-            signIn();
-            importBankAccounts();
-            printBankAccounts();
-        } catch (BadArgumentsException | BadCredentialsException | BadLoginMethodException | IOException | JsonException
-                | IllegalStateException | NullPointerException | ClassCastException exception) {
-            ErrorsHandler.handleException(exception, DEBUG_MODE);
-        }
+        enterCredentials(args);
+        setupConnection();
+        signIn();
+        importBankAccounts();
+        printBankAccounts();
     }
 
     private static void enterCredentials(String[] args) {
-        userCredentials = UserInterface.findOutUserCredentials(args);
+        try {
+            userCredentials = UserInterface.findOutUserCredentials(args);
+        } catch (BadArgumentsException badArgumentsException) {
+            ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
+        }
     }
 
     private static void setupConnection() {
@@ -61,14 +60,23 @@ public class Main {
             webClient = WebClientFactory.getWebClientWithProxy();
     }
 
-    private static void signIn() throws IOException {
+    private static void signIn() {
         BankAuthenticator bankAuthenticator = new NestBankMaskedPasswordAuthenticator(webClient);
-        bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
+        try {
+            bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
+        } catch (BadCredentialsException | BadLoginMethodException | IOException | JsonException
+                | IllegalStateException | NullPointerException | ClassCastException exception) {
+            ErrorsHandler.handleException(exception, DEBUG_MODE);
+        }
     }
 
-    private static void importBankAccounts() throws IOException {
+    private static void importBankAccounts() {
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
-        bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
+        try {
+            bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
+        } catch (IOException | JsonException | IllegalStateException | NullPointerException | ClassCastException exception) {
+            ErrorsHandler.handleException(exception, DEBUG_MODE);
+        }
     }
 
     private static void printBankAccounts() {
