@@ -1,7 +1,7 @@
 package michu4k.kontomatikchallenge.utils;
 
 public class UrlProvider {
-    public static final String DOMAIN_URL = "https://login.nestbank.pl/";
+    static final String DOMAIN_URL = "https://login.nestbank.pl/";
 
     public final static String LOGIN_SITE_URL = DOMAIN_URL + "rest/v1/auth/checkLogin";
     public final static String PASSWORD_AND_AVATAR_SITE_URL = DOMAIN_URL + "rest/v1/auth/loginByPartialPassword";

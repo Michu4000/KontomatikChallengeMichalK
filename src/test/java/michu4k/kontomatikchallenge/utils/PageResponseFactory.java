@@ -9,8 +9,6 @@ import java.util.Map;
 
 import michu4k.kontomatikchallenge.stubs.PageStub;
 
-//TODO split into 2 classes (or more)
-
 public class PageResponseFactory {
     public static Page getPageBadLogin() throws IOException {
         return getPage(UrlProvider.LOGIN_SITE_URL, PageResponseBodyProvider.getBadLogin());
@@ -48,42 +46,7 @@ public class PageResponseFactory {
         return getPage(urlAddress, "BAD URL");
     }
 
-    public static Page getPageBadHttpMethod() throws IOException { // http 405
-        String urlAddress = "https://bad.http.method.com";
-        return getPage(urlAddress, "BAD HTTP METHOD");
-    }
-
-    public static Page getPageBadContentType() throws IOException { // http 415
-        String urlAddress = "https://bad.content.type.com";
-        return getPage(urlAddress, "BAD CONTENT TYPE");
-    }
-
-    public static Page getPageBadReferer() throws IOException { // ignored by server, it's working normal way
-        String urlAddress = "https://bad.referer.com";
-        return getPage(urlAddress, "BAD REFERER");
-    }
-
-    public static Page getPageBadSessionToken(int userId) throws IOException { // http 401
-        String urlAddress = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
-        return getPage(urlAddress, PageResponseBodyProvider.getBadSessionToken());
-    }
-
-    public static Page getPageBadAcceptHeader() throws IOException { // ignored by server, it's working normal way
-        String urlAddress = "https://bad.accept.com";
-        return getPage(urlAddress, "BAD ACCEPT HEADER");
-    }
-
-    public static Page getPageBadAcceptEncoding() throws IOException { // ignored by server, it's working normal way
-        String urlAddress = "https://bad.accept.encoding.com";
-        return getPage(urlAddress, "BAD ACCEPT ENCODING");
-    }
-
-    public static Page getPageBadAcceptLanguage() throws IOException { // ignored by server, it's working normal way
-        String urlAddress = "https://bad.accept.language.com";
-        return getPage(urlAddress, "BAD ACCEPT LANGUAGE");
-    }
-
-    private static Page getPage(String urlAddress, String responseBody) throws IOException {
+    static Page getPage(String urlAddress, String responseBody) throws IOException {
         return getPage(urlAddress, new HashMap<>(), responseBody);
     }
 

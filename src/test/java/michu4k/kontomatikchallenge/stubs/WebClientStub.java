@@ -4,18 +4,10 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.HttpMethod;
 
-import michu4k.kontomatikchallenge.utils.JsonUtils;
-import michu4k.kontomatikchallenge.utils.PageResponseFactory;
-import michu4k.kontomatikchallenge.utils.PasswordUtils;
 import michu4k.kontomatikchallenge.utils.UrlProvider;
 
-import javax.json.JsonObject;
-
 import java.io.IOException;
-
-//TODO split into 2 classes (or more)
 
 public class WebClientStub extends WebClient {
     private final static String DEFAULT_LOGIN_NAME = "testtest";
@@ -37,8 +29,6 @@ public class WebClientStub extends WebClient {
 
     private int validUserId = DEFAULT_USER_ID;
     private String BankAccountSiteUrl;
-    private WebRequest request;
-    private Page outputPage;
 
     public WebClientStub() {
         setBankAccountSite(DEFAULT_USER_ID);
@@ -59,122 +49,14 @@ public class WebClientStub extends WebClient {
 
     @Override
     public <P extends Page> P getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
-        this.request = request;
         String requestUrl = request.getUrl().toString();
         if (requestUrl.equals(UrlProvider.LOGIN_SITE_URL))
-            handleLoginRequest();
+            return (P) WebClientStubRequestHandler.handleLoginRequest(request, this);
         else if (requestUrl.equals(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL))
-            handlePasswordAndAvatarRequest();
+            return (P) WebClientStubRequestHandler.handlePasswordAndAvatarRequest(request, this);
         else if (requestUrl.equals(BankAccountSiteUrl))
-            handleBankAccountsRequest();
+            return (P) WebClientStubRequestHandler.handleBankAccountsRequest(request, this);
         else
-            handleBadUrlError();
-        return (P) outputPage;
-    }
-
-    private void handleLoginRequest() throws IOException {
-        if(!checkHeadersInRequestPost())
-            return;
-        if(checkLoginRequestBody(request.getRequestBody()))
-            outputPage = PageResponseFactory.getPageValidLogin(maskedPasswordMethod, validPassword.length(), validMaskedPasswordKeysIndexes);
-        else
-            outputPage = PageResponseFactory.getPageBadLogin();
-    }
-
-    private void handlePasswordAndAvatarRequest() throws IOException {
-        if(!checkHeadersInRequestPost())
-            return;
-        if(checkPasswordAndAvatarRequestBody(request.getRequestBody()))
-            outputPage = PageResponseFactory.getPageValidPasswordAndAvatar(validSessionToken, validUserId);
-        else
-            outputPage = PageResponseFactory.getPageBadPasswordAndAvatar();
-    }
-
-    private void handleBankAccountsRequest() throws IOException {
-        if(checkHeadersInRequestGet())
-            outputPage = PageResponseFactory.getPageValidBankAccounts(validUserId);
-    }
-
-    private void handleBadUrlError() throws IOException {
-        outputPage = PageResponseFactory.getPageBadUrl();
-    }
-
-    private boolean checkHeadersInRequestPost() throws IOException {
-        if(!checkCommonHeaders())
-            return false;
-        if(!request.getHttpMethod().equals(HttpMethod.POST)) {
-            outputPage = PageResponseFactory.getPageBadHttpMethod();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Content-Type").equals("application/json")) {
-            outputPage = PageResponseFactory.getPageBadContentType();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Referer").equals("https://login.nestbank.pl/login")) {
-            outputPage = PageResponseFactory.getPageBadReferer();
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkHeadersInRequestGet() throws IOException {
-        if(!checkCommonHeaders())
-            return false;
-        if(!request.getHttpMethod().equals(HttpMethod.GET)) {
-            outputPage = PageResponseFactory.getPageBadHttpMethod();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Content-Type").equals("text/plain")) {
-            outputPage = PageResponseFactory.getPageBadContentType();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Referer").equals("https://login.nestbank.pl/dashboard/products")) {
-            outputPage = PageResponseFactory.getPageBadReferer();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Session-Token").equals(validSessionToken)) {
-            outputPage = PageResponseFactory.getPageBadSessionToken(validUserId);
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkCommonHeaders() throws IOException {
-        if(!request.getAdditionalHeaders().get("Accept").equals("*/*")) {
-            outputPage = PageResponseFactory.getPageBadAcceptHeader();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Accept-Encoding").equals("gzip, deflate")) {
-            outputPage = PageResponseFactory.getPageBadAcceptEncoding();
-            return false;
-        }
-        if(!request.getAdditionalHeaders().get("Accept-Language").equals("en-US,en;q=0.9,pl;q=0.8")) {
-            outputPage = PageResponseFactory.getPageBadAcceptLanguage();
-            return false;
-        }
-        return true;
-    }
-
-    private boolean checkLoginRequestBody(String requestBody) {
-        // default valid request json: {"login":"testtest"}
-        JsonObject jsonObject = JsonUtils.parseStringToJson(requestBody);
-        boolean isLoginNameValid = jsonObject.getString("login").equals(validLoginName);
-        return isLoginNameValid;
-    }
-
-    private boolean checkPasswordAndAvatarRequestBody(String requestBody) {
-        // default valid request json:
-        // {"login":"testtest","maskedPassword":{"1":"t","3":"s","7":"s"},"avatarId":23,"loginScopeType":"WWW"}
-        JsonObject jsonObject = JsonUtils.parseStringToJson(requestBody);
-        if (!jsonObject.getString("login").equals(validLoginName))
-            return false;
-        JsonObject maskedPasswordJson = PasswordUtils.buildMaskedPassword(validMaskedPasswordKeysIndexes, validPassword).build();
-        if (!jsonObject.getJsonObject("maskedPassword").equals(maskedPasswordJson))
-            return false;
-        if (jsonObject.getInt("avatarId") != validAvatarId)
-            return false;
-        if (!jsonObject.getString("loginScopeType").equals("WWW"))
-            return false;
-        return true;
+            return (P) WebClientStubRequestHandler.handleBadUrlError();
     }
 }
