@@ -30,8 +30,6 @@ import javax.json.JsonException;
 import java.io.IOException;
 import java.util.List;
 
-//TODO pom.xml for auto run-configuration
-
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
