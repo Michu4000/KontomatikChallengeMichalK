@@ -19,6 +19,19 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.6.0</version>
+                <configuration>
+                    <mainClass>michu4k.kontomatikchallenge.Main</mainClass>
+                    <arguments>
+                        <argument>loginName</argument>
+                        <argument>password</argument>
+                        <argument>avatarId</argument>
+                    </arguments>
+                </configuration>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.0.0-M3</version>
@@ -30,7 +43,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <defaultGoal>test</defaultGoal>
+        <defaultGoal>compiler:compile compiler:testCompile surefire:test exec:java</defaultGoal>
     </build>
 
     <dependencies>

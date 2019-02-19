@@ -14,7 +14,6 @@ import michu4k.kontomatikchallenge.utils.WebClientFactory;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.testng.annotations.Parameters;
-
 import static org.testng.Assert.assertTrue;
 
 import java.io.IOException;
@@ -33,7 +32,7 @@ public class NestBankAccountScraperAcceptanceTest {
 
     @Test
     @Parameters({"validLoginName", "validPassword", "validAvatarId"})
-    public void successfulLoginAndImportBankAccountTest(String validLoginName, String validPassword, String validAvatarId) throws IOException {
+    public void successfulImportBankAccountsTest(String validLoginName, String validPassword, String validAvatarId) throws IOException {
         BankSession bankSession = successfulLogin(validLoginName, validPassword, validAvatarId);
         List<BankAccount> bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
         boolean areThereAnyMoney = bankAccounts.get(1).isInCredit();
@@ -61,7 +60,6 @@ public class NestBankAccountScraperAcceptanceTest {
         bankAccountScraper.scrapeBankAccounts(bankSession);
     }
 
-    @Parameters({"validLoginName", "validPassword", "validAvatarId"})
     private BankSession successfulLogin(String validLoginName, String validPassword, String validAvatarId) throws IOException {
         UserCredentials userCredentials = UserInterface.findOutUserCredentials(new String[] { validLoginName, validPassword, validAvatarId });
         return bankAuthenticator.logIntoBankAccount(userCredentials);
