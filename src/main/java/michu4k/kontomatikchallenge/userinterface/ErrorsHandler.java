@@ -24,6 +24,7 @@ public class ErrorsHandler {
             case "IllegalStateException":
             case "NullPointerException":
             case "ClassCastException":
+            case "FailingHttpStatusCodeException":
                 printConnectionError();
                 System.exit(1);
                 break;

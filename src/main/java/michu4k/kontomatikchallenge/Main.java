@@ -9,6 +9,7 @@
 //
 package michu4k.kontomatikchallenge;
 
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
 import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
 import michu4k.kontomatikchallenge.datascrape.BankAccountScraper;
@@ -76,7 +77,8 @@ public class Main {
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
         try {
             bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
-        } catch (IOException | JsonException | IllegalStateException | NullPointerException | ClassCastException exception) {
+        } catch (IOException | JsonException | IllegalStateException | NullPointerException
+                | ClassCastException | FailingHttpStatusCodeException exception) {
             ErrorsHandler.handleException(exception, DEBUG_MODE);
         }
     }

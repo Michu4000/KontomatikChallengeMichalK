@@ -6,18 +6,20 @@
       <parameter name = "validLoginName" value="..."/>
       <parameter name = "validPassword" value="..."/>
       <parameter name = "validAvatarId" value="..."/>
-
       <parameter name = "tooShortLoginName" value="test"/>
       <parameter name = "badLoginName" value="testtest"/>
       <parameter name = "tooShortPassword" value="123"/>
       <parameter name = "badPassword" value="testtest123456789"/>
       <parameter name = "badAvatarId" value="13"/>
+      <parameter name = "badUserId" value="130794"/>
+      <parameter name = "badSessionToken" value="cjjtufyr56675rduts2q5q8efhxtay867dyf85425wsckjioguiystrstusufigr5ewwqsh"/>
 
       <classes>
          <class name = "michu4k.kontomatikchallenge.testngtest.TestNGSimpleTest"/>
          <class name = "michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticatorUnitTest"/>
          <class name = "michu4k.kontomatikchallenge.datascrape.NestBankAccountScraperUnitTest"/>
-         <class name = "michu4k.kontomatikchallenge.acceptancetests.AcceptanceTests"/>
+         <class name = "michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticatorAcceptanceTest"/>
+         <class name = "michu4k.kontomatikchallenge.datascrape.NestBankAccountScraperAcceptanceTest"/>
       </classes>
    </test>
 </suite>

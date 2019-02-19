@@ -29,9 +29,7 @@ public class NestBankAccountScraperUnitTest {
     public void successfulScrapeAccountsTest() throws IOException {
         BankSession validBankSession = getValidBankSession();
         List<BankAccount> expectedBankAccounts = getExpectedBankAccounts();
-
         List<BankAccount> testBankAccounts = scraper.scrapeBankAccounts(validBankSession);
-
         assertEquals(testBankAccounts, expectedBankAccounts);
     }
 

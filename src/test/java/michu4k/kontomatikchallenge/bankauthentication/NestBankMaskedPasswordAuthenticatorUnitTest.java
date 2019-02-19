@@ -26,9 +26,7 @@ public class NestBankMaskedPasswordAuthenticatorUnitTest {
     public void successfulLoginTest() throws IOException {
         UserCredentials userCredentials = getValidUserCredentials();
         BankSession expectedBankSession = getExpectedBankSession();
-
         BankSession testBankSession = authenticator.logIntoBankAccount(userCredentials);
-
         assertEquals(testBankSession, expectedBankSession);
     }
 

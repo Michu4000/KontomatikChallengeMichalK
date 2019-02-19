@@ -8,6 +8,13 @@ public class BankSession {
         this.userId = -1;
     }
 
+    public boolean isSessionBlank() {
+        if(sessionToken == null || sessionToken.length() == 0 || userId == -1)
+            return true;
+        else
+            return false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null)

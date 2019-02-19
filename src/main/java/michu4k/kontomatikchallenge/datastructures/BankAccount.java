@@ -9,6 +9,14 @@ public class BankAccount {
     public BigDecimal accountBalance;
     public String accountCurrency;
 
+    public boolean isInCredit() {
+        int compareResult = accountBalance.compareTo(new BigDecimal("0"));
+        if (compareResult > 0)
+            return true;
+        else
+            return false;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null)
