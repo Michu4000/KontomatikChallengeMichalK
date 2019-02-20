@@ -23,6 +23,7 @@ import michu4k.kontomatikchallenge.utils.factories.WebClientFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
+import java.util.Collections;
 import java.util.List;
 
 public class Main {
@@ -41,7 +42,7 @@ public class Main {
         } catch (BadArgumentsException badArgumentsException) {
             ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
         }
-        return null;
+        return new UserCredentials();
     }
 
     private static WebClient setupConnection() {
@@ -60,7 +61,7 @@ public class Main {
         } catch (Exception exception) {
             ErrorsHandler.handleException(exception, DEBUG_MODE);
         }
-        return null;
+        return Collections.emptyList();
     }
 
     private static void printBankAccounts(List<BankAccount> bankAccounts) {

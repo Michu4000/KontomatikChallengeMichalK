@@ -4,6 +4,7 @@ import com.gargoylesoftware.htmlunit.Page;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,12 +19,10 @@ public class PageResponseFactory {
 
     public static Page getPageValidLogin(boolean maskedPasswordMethod, int passwordLength, int[] maskedPasswordKeysIndexes) throws IOException {
         String responseBody;
-        if(maskedPasswordMethod) {
-            responseBody = PageResponseBodyProvider.getValidLoginBeginning() + "\"passwordLength\":" + passwordLength +
-                ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
-        } else {
+        if(maskedPasswordMethod)
+            responseBody = buildValidLoginMaskedPasswordResponseBody(passwordLength, maskedPasswordKeysIndexes);
+        else
             responseBody = PageResponseBodyProvider.getValidLoginBeginning() + PageResponseBodyProvider.getValidLoginEndForNotMaskedPassword();
-        }
         return getPage(UrlProvider.LOGIN_SITE_URL, responseBody);
     }
 
@@ -47,8 +46,13 @@ public class PageResponseFactory {
         return getPage(url, "BAD URL");
     }
 
+    private static String buildValidLoginMaskedPasswordResponseBody(int passwordLength, int[] maskedPasswordKeysIndexes) throws IOException {
+        return PageResponseBodyProvider.getValidLoginBeginning() + "\"passwordLength\":" + passwordLength +
+            ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
+    }
+
     static Page getPage(String url, String responseBody) throws IOException {
-        return getPage(url, new HashMap<>(), responseBody);
+        return getPage(url, Collections.emptyMap(), responseBody);
     }
 
     private static Page getPage(String url, Map<String, String> responseHeaders, String responseBody) throws IOException {

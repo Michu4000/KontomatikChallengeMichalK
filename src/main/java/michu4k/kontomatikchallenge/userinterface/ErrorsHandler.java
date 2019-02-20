@@ -2,7 +2,7 @@ package michu4k.kontomatikchallenge.userinterface;
 
 public class ErrorsHandler {
     private final static String ARGUMENT_ERROR_MSG = "Bad arguments. Usage: NestChecker <login> <password> <avatarId>";
-    private final static String CONNECTION_ERROR_MSG = "Connection error.";
+    private final static String CONNECTION_ERROR_MSG = "Connection or bank error.";
     private final static String BAD_CREDENTIALS_MSG = "Bad credentials.";
     private final static String INTERNAL_ERROR_MSG = "Internal application error.";
 
@@ -13,7 +13,8 @@ public class ErrorsHandler {
     }
 
     private static void printErrorAndExit(Exception exception) {
-        switch(exception.getClass().getSimpleName()) {
+        String exceptionName = exception.getClass().getSimpleName();
+        switch(exceptionName) {
             case "BadArgumentsException":
                 printArgumentsError();
                 System.exit(2);

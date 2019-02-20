@@ -27,7 +27,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
     @Override
     public List<BankAccount> scrapeBankAccounts(BankSession bankSession) throws IOException {
         WebRequest bankAccountsRequest = createBankAccountRequest(bankSession);
-        String bankAccountResponse = sendBankAccountsRequest(bankAccountsRequest);
+        String bankAccountResponse = sendBankAccountsRequestAndGetResponse(bankAccountsRequest);
         JsonArray jsonBankAccounts = parseBankAccountsResponseToJsonArray(bankAccountResponse);
         return JsonBankAccountsExtractor.extractBankAccountsFromJsonArray(jsonBankAccounts);
     }
@@ -37,7 +37,7 @@ public class NestBankAccountScraper implements BankAccountScraper {
         return WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
     }
 
-    private String sendBankAccountsRequest(WebRequest bankAccountsRequest) throws IOException {
+    private String sendBankAccountsRequestAndGetResponse(WebRequest bankAccountsRequest) throws IOException {
         Page bankAccountsPage = webClient.getPage(bankAccountsRequest);
         return bankAccountsPage.getWebResponse().getContentAsString();
     }

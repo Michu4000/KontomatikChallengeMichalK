@@ -49,7 +49,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private BankSession enterPasswordAndAvatar(String loginResponse, UserCredentials userCredentials) throws IOException {
         try {
             WebRequest passwordAndAvatarRequest = createPasswordAndAvatarRequest(loginResponse, userCredentials);
-            Page signedInPage = sendPasswordAndAvatarRequestAndGetSignedInPage(passwordAndAvatarRequest);
+            Page signedInPage = sendPasswordAndAvatarRequestAndGetPage(passwordAndAvatarRequest);
             String passwordAndAvatarResponse = extractPasswordAndAvatarResponseFromPage(signedInPage);
             String sessionToken = extractSessionTokenFromPage(signedInPage);
             return createBankSession(passwordAndAvatarResponse, sessionToken);
@@ -73,7 +73,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     private void checkLoginMethod(String loginResponse) {
         JsonObject loginResponseJson = JsonUtils.parseStringToJson(loginResponse);
         if (!isLoginMethodMaskedPassword(loginResponseJson))
-            throw new BadLoginMethodException();
+            throw new BadLoginMethodException("Login method is different than masked password");
     }
 
     private WebRequest createPasswordAndAvatarRequest(String loginResponse, UserCredentials userCredentials) throws IOException {
@@ -84,7 +84,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
         return WebRequestFactory.createRequestPost(passwordAndAvatarSiteUrl, passwordAndAvatarRequestBody);
     }
 
-    private Page sendPasswordAndAvatarRequestAndGetSignedInPage(WebRequest passwordAndAvatarRequest) throws IOException {
+    private Page sendPasswordAndAvatarRequestAndGetPage(WebRequest passwordAndAvatarRequest) throws IOException {
         return webClient.getPage(passwordAndAvatarRequest);
     }
 

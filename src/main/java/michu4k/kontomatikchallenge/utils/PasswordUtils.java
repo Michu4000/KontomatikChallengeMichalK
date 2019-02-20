@@ -23,7 +23,7 @@ public class PasswordUtils {
     public static void checkPasswordLength(String password, int[] maskedPasswordKeysIndexes) {
         int minLength = maskedPasswordKeysIndexes[maskedPasswordKeysIndexes.length - 1];
         if (!isPasswordLongEnough(minLength, password.length()))
-            throw new BadPasswordException();
+            throw new BadPasswordException("Password is too short");
     }
 
     public static String buildPasswordAndAvatarRequestBody(int[] maskedPasswordKeysIndexes, UserCredentials userCredentials) {

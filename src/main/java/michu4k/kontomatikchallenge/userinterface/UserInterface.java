@@ -27,7 +27,7 @@ public class UserInterface {
 
     private static void checkNumberOfArguments(int argsCount) {
         if (argsCount != 3)
-            throw new BadArgumentsException();
+            throw new BadArgumentsException("Wrong number of arguments");
     }
 
     private static UserCredentials fillCredentials(String[] credentials) {
@@ -35,7 +35,7 @@ public class UserInterface {
         userCredentials.login = credentials[0];
         userCredentials.password = credentials[1];
         if (!isValidAvatarId(credentials[2])) {
-            throw new BadArgumentsException();
+            throw new BadArgumentsException("Invalid avatarId");
         }
         userCredentials.avatarId = Integer.parseInt(credentials[2]);
         return userCredentials;
@@ -43,7 +43,7 @@ public class UserInterface {
 
     private static void checkForBlankCredentials(UserCredentials userCredentials) {
         if (!userCredentials.isEverythingFilled())
-            throw new BadArgumentsException();
+            throw new BadArgumentsException("Blank arguments: login and/or password");
     }
 
     private static boolean isValidAvatarId(String str) {

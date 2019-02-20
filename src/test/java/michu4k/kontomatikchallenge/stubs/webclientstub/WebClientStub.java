@@ -22,15 +22,11 @@ public class WebClientStub extends WebClient {
     final int[] validMaskedPasswordKeysIndexes = {1, 3, 7};
     final boolean maskedPasswordMethod = true;
 
-    private final String BankAccountSiteUrl;
-
-    public WebClientStub() {
-        BankAccountSiteUrl = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + validUserId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
-    }
-
     @Override
     public <P extends Page> P getPage(WebRequest request) throws IOException, FailingHttpStatusCodeException {
+        String BankAccountSiteUrl = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + validUserId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
         String requestUrl = request.getUrl().toString();
+
         if (requestUrl.equals(UrlProvider.LOGIN_SITE_URL))
             return (P) WebClientStubRequestHandler.handleLoginRequest(request, this);
         else if (requestUrl.equals(UrlProvider.PASSWORD_AND_AVATAR_SITE_URL))

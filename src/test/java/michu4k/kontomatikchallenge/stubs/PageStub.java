@@ -13,8 +13,8 @@ public class PageStub implements Page {
     private Map<String, String> responseHeaders;
     private String responseBody;
 
-    public PageStub(String urlAddress, Map<String, String> responseHeaders, String responseBody) throws IOException {
-        this.url = new URL(urlAddress);
+    public PageStub(String url, Map<String, String> responseHeaders, String responseBody) throws IOException {
+        this.url = new URL(url);
         this.responseHeaders = responseHeaders;
         this.responseBody = responseBody;
     }
