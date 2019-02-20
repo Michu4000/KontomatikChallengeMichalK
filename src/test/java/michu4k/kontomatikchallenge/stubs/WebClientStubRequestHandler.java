@@ -19,9 +19,9 @@ class WebClientStubRequestHandler {
             return headersError;
         if(checkLoginRequestBody(request.getRequestBody(), webClientStub.validLoginName))
             return PageResponseFactory.getPageValidLogin(
-                    webClientStub.maskedPasswordMethod,
-                    webClientStub.validPassword.length(),
-                    webClientStub.validMaskedPasswordKeysIndexes
+                webClientStub.maskedPasswordMethod,
+                webClientStub.validPassword.length(),
+                webClientStub.validMaskedPasswordKeysIndexes
             );
         else
             return PageResponseFactory.getPageBadLogin();

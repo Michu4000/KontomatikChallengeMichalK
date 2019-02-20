@@ -1,9 +1,10 @@
-package michu4k.kontomatikchallenge.datascrape;
+package michu4k.kontomatikchallenge.mocktests;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.scrapers.NestBankAccountScraper;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankSession;
 import michu4k.kontomatikchallenge.stubs.WebClientStub;
 
 import org.testng.annotations.BeforeMethod;
@@ -15,7 +16,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NestBankAccountScraperUnitTest {
+public class NestBankAccountScraperMockTest {
     private WebClient webClientStub;
     private NestBankAccountScraper scraper;
 

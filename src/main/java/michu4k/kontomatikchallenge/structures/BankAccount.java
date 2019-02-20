@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.datastructures;
+package michu4k.kontomatikchallenge.structures;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

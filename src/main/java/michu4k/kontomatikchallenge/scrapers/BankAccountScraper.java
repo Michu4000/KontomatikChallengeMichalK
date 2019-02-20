@@ -1,7 +1,7 @@
-package michu4k.kontomatikchallenge.datascrape;
+package michu4k.kontomatikchallenge.scrapers;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankSession;
 
 import java.io.IOException;
 import java.util.List;

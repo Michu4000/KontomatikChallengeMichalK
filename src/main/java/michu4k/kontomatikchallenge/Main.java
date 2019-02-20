@@ -9,79 +9,61 @@
 //
 package michu4k.kontomatikchallenge;
 
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
 import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
-import michu4k.kontomatikchallenge.datascrape.BankAccountScraper;
-import michu4k.kontomatikchallenge.datascrape.NestBankAccountScraper;
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.BankSession;
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.scrapers.BankAccountScraper;
+import michu4k.kontomatikchallenge.scrapers.NestBankAccountScraper;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankSession;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
-import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
-import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.userinterface.ErrorsHandler;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
-import javax.json.JsonException;
-import java.io.IOException;
 import java.util.List;
 
 public class Main {
     private final static boolean DEBUG_MODE = false;
 
-    private static UserCredentials userCredentials;
-    private static WebClient webClient;
-    private static BankSession bankSession;
-    private static List<BankAccount> bankAccounts;
-
     public static void main(String[] args) {
-        readUserCredentials(args);
-        setupConnection();
-        signIn();
-        importBankAccounts();
-        printBankAccounts();
+        UserCredentials userCredentials = readUserCredentials(args);
+        WebClient webClient = setupConnection();
+        List<BankAccount> bankAccounts = importBankAccounts(userCredentials, webClient);
+        printBankAccounts(bankAccounts);
     }
 
-    private static void readUserCredentials(String[] args) {
+    private static UserCredentials readUserCredentials(String[] args) {
         try {
-            userCredentials = UserInterface.findOutUserCredentials(args);
+            return UserInterface.findOutUserCredentials(args);
         } catch (BadArgumentsException badArgumentsException) {
             ErrorsHandler.handleException(badArgumentsException, DEBUG_MODE);
         }
+        return null;
     }
 
-    private static void setupConnection() {
+    private static WebClient setupConnection() {
         if (!DEBUG_MODE)
-            webClient = WebClientFactory.getWebClient();
+            return WebClientFactory.getWebClient();
         else
-            webClient = WebClientFactory.getWebClientWithProxy();
+            return WebClientFactory.getWebClientWithProxy();
     }
 
-    private static void signIn() {
+    private static List<BankAccount> importBankAccounts(UserCredentials userCredentials, WebClient webClient) {
         BankAuthenticator bankAuthenticator = new NestBankMaskedPasswordAuthenticator(webClient);
-        try {
-            bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
-        } catch (BadCredentialsException | BadLoginMethodException | IOException | JsonException
-                | IllegalStateException | NullPointerException | ClassCastException exception) {
-            ErrorsHandler.handleException(exception, DEBUG_MODE);
-        }
-    }
-
-    private static void importBankAccounts() {
         BankAccountScraper bankAccountScraper = new NestBankAccountScraper(webClient);
         try {
-            bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
-        } catch (IOException | JsonException | IllegalStateException | NullPointerException
-                | ClassCastException | FailingHttpStatusCodeException exception) {
+            BankSession bankSession = bankAuthenticator.logIntoBankAccount(userCredentials);
+            return bankAccountScraper.scrapeBankAccounts(bankSession);
+        } catch (Exception exception) {
             ErrorsHandler.handleException(exception, DEBUG_MODE);
         }
+        return null;
     }
 
-    private static void printBankAccounts() {
+    private static void printBankAccounts(List<BankAccount> bankAccounts) {
         UserInterface.printBankAccounts(bankAccounts);
     }
 }

@@ -1,6 +1,6 @@
 package michu4k.kontomatikchallenge.userinterface;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankAccount;
 
 import java.math.BigDecimal;
 

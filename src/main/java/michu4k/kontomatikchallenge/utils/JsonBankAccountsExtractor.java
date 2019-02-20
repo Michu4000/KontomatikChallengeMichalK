@@ -1,9 +1,11 @@
 package michu4k.kontomatikchallenge.utils;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankAccount;
 
 import javax.json.JsonArray;
+import javax.json.JsonObject;
 import javax.json.JsonValue;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,7 +15,9 @@ import java.util.stream.Stream;
 public class JsonBankAccountsExtractor {
     public static List<BankAccount> extractBankAccountsFromJsonArray(JsonArray jsonBankAccounts) {
         List<BankAccount> bankAccountsGroup = new ArrayList<>();
-        for (JsonValue jsonBankAccount : jsonBankAccounts) {
+        for (JsonValue rawJsonBankAccount : jsonBankAccounts) {
+            JsonObject jsonBankAccount = rawJsonBankAccount.asJsonObject();
+
             BankAccount bankAccount = new BankAccount();
             bankAccount.accountName = extractName(jsonBankAccount);
             bankAccount.accountNumber = extractNumber(jsonBankAccount);
@@ -24,20 +28,20 @@ public class JsonBankAccountsExtractor {
         return bankAccountsGroup;
     }
 
-    private static String extractName(JsonValue jsonBankAccount) {
-        return jsonBankAccount.asJsonObject().getString("name");
+    private static String extractName(JsonObject jsonBankAccount) {
+        return jsonBankAccount.getString("name");
     }
 
-    private static int[] extractNumber(JsonValue jsonBankAccount) {
-        Stream<String> bankAccountNumberStream = Arrays.stream(jsonBankAccount.asJsonObject().getString("nrb").split(""));
+    private static int[] extractNumber(JsonObject jsonBankAccount) {
+        Stream<String> bankAccountNumberStream = Arrays.stream(jsonBankAccount.getString("nrb").split(""));
         return bankAccountNumberStream.mapToInt(Integer::parseInt).toArray();
     }
 
-    private static BigDecimal extractBalance(JsonValue jsonBankAccount) {
-        return jsonBankAccount.asJsonObject().getJsonNumber("balance").bigDecimalValue();
+    private static BigDecimal extractBalance(JsonObject jsonBankAccount) {
+        return jsonBankAccount.getJsonNumber("balance").bigDecimalValue();
     }
 
-    private static String extractCurrency(JsonValue jsonBankAccount) {
-        return jsonBankAccount.asJsonObject().getString("currency");
+    private static String extractCurrency(JsonObject jsonBankAccount) {
+        return jsonBankAccount.getString("currency");
     }
 }

@@ -18,9 +18,9 @@ public class PageResponseFactory {
         String responseBody;
         if(maskedPasswordMethod) {
             responseBody = PageResponseBodyProvider.getValidLoginBeginning() + "\"passwordLength\":" + passwordLength +
-                    ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
+                ",\"passwordKeys\":" + Arrays.toString(maskedPasswordKeysIndexes) + ",\"loginProcess\":\"PARTIAL_PASSWORD\"}";
         } else {
-            responseBody = PageResponseBodyProvider.getValidLoginBeginning() + PageResponseBodyProvider.getValidLoginEnd();
+            responseBody = PageResponseBodyProvider.getValidLoginBeginning() + PageResponseBodyProvider.getValidLoginEndForNotMaskedPassword();
         }
         return getPage(UrlProvider.LOGIN_SITE_URL, responseBody);
     }

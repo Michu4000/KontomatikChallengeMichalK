@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.datastructures;
+package michu4k.kontomatikchallenge.structures;
 
 public class BankSession {
     public String sessionToken;

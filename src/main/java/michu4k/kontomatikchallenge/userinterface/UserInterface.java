@@ -1,10 +1,12 @@
 package michu4k.kontomatikchallenge.userinterface;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UserInterface {
     private final static String OUTPUT_MSG_HEADER = "NEST ACCOUNTS BALANCES:";
@@ -31,16 +33,21 @@ public class UserInterface {
         UserCredentials userCredentials = new UserCredentials();
         userCredentials.login = credentials[0];
         userCredentials.password = credentials[1];
-        try {
-            userCredentials.avatarId = Integer.parseInt(credentials[2]);
-        } catch (NumberFormatException numberFormatException) {
-            throw new BadArgumentsException(numberFormatException);
+        if (!isValidAvatarId(credentials[2])) {
+            throw new BadArgumentsException();
         }
+        userCredentials.avatarId = Integer.parseInt(credentials[2]);
         return userCredentials;
     }
 
     private static void checkForBlankCredentials(UserCredentials userCredentials) {
         if (!userCredentials.isEverythingFilled())
             throw new BadArgumentsException();
+    }
+
+    private static boolean isValidAvatarId(String str) {
+        Pattern intPattern = Pattern.compile("\\d{1,9}");
+        Matcher intMatcher = intPattern.matcher(str);
+        return intMatcher.matches();
     }
 }

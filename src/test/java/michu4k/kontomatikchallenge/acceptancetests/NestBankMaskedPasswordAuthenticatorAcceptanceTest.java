@@ -1,9 +1,11 @@
-package michu4k.kontomatikchallenge.bankauthentication;
+package michu4k.kontomatikchallenge.acceptancetests;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
-import michu4k.kontomatikchallenge.datastructures.BankSession;
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
+import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
+import michu4k.kontomatikchallenge.structures.BankSession;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
 import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;

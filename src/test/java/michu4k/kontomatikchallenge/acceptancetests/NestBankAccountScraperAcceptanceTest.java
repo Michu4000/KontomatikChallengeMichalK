@@ -1,13 +1,15 @@
-package michu4k.kontomatikchallenge.datascrape;
+package michu4k.kontomatikchallenge.acceptancetests;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
 
 import michu4k.kontomatikchallenge.bankauthentication.BankAuthenticator;
 import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.BankSession;
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.scrapers.BankAccountScraper;
+import michu4k.kontomatikchallenge.scrapers.NestBankAccountScraper;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankSession;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
 import michu4k.kontomatikchallenge.utils.WebClientFactory;
 
@@ -21,7 +23,7 @@ import java.util.List;
 
 public class NestBankAccountScraperAcceptanceTest {
     private BankAuthenticator bankAuthenticator;
-    private  BankAccountScraper bankAccountScraper;
+    private BankAccountScraper bankAccountScraper;
 
     @BeforeClass
     void testInit() {

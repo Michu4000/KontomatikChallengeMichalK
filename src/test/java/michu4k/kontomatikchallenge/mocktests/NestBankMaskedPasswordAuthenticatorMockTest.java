@@ -1,9 +1,10 @@
-package michu4k.kontomatikchallenge.bankauthentication;
+package michu4k.kontomatikchallenge.mocktests;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 
-import michu4k.kontomatikchallenge.datastructures.BankSession;
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.bankauthentication.NestBankMaskedPasswordAuthenticator;
+import michu4k.kontomatikchallenge.structures.BankSession;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.stubs.WebClientStub;
 
 import org.testng.annotations.BeforeMethod;
@@ -12,7 +13,7 @@ import static org.testng.Assert.assertEquals;
 
 import java.io.IOException;
 
-public class NestBankMaskedPasswordAuthenticatorUnitTest {
+public class NestBankMaskedPasswordAuthenticatorMockTest {
     private WebClient webClientStub;
     private NestBankMaskedPasswordAuthenticator authenticator;
 

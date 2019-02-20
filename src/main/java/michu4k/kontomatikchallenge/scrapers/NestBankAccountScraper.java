@@ -1,7 +1,7 @@
-package michu4k.kontomatikchallenge.datascrape;
+package michu4k.kontomatikchallenge.scrapers;
 
-import michu4k.kontomatikchallenge.datastructures.BankAccount;
-import michu4k.kontomatikchallenge.datastructures.BankSession;
+import michu4k.kontomatikchallenge.structures.BankAccount;
+import michu4k.kontomatikchallenge.structures.BankSession;
 import michu4k.kontomatikchallenge.utils.JsonBankAccountsExtractor;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.UrlProvider;
@@ -19,9 +19,6 @@ import java.util.List;
 
 public class NestBankAccountScraper implements BankAccountScraper {
     private final WebClient webClient;
-    private WebRequest bankAccountsRequest;
-    private String bankAccountsResponse;
-    private JsonArray jsonBankAccounts;
 
     public NestBankAccountScraper(WebClient webClient) {
         this.webClient = webClient;
@@ -29,23 +26,23 @@ public class NestBankAccountScraper implements BankAccountScraper {
 
     @Override
     public List<BankAccount> scrapeBankAccounts(BankSession bankSession) throws IOException {
-        createBankAccountRequest(bankSession);
-        sendBankAccountsRequest();
-        parseBankAccountsResponseToJsonArray();
+        WebRequest bankAccountsRequest = createBankAccountRequest(bankSession);
+        String bankAccountResponse = sendBankAccountsRequest(bankAccountsRequest);
+        JsonArray jsonBankAccounts = parseBankAccountsResponseToJsonArray(bankAccountResponse);
         return JsonBankAccountsExtractor.extractBankAccountsFromJsonArray(jsonBankAccounts);
     }
 
-    private void createBankAccountRequest(BankSession bankSession) throws IOException {
+    private WebRequest createBankAccountRequest(BankSession bankSession) throws IOException {
         URL bankAccountsUrl = new URL(UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + bankSession.userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END);
-        bankAccountsRequest = WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
+        return WebRequestFactory.createRequestGet(bankAccountsUrl, bankSession.sessionToken);
     }
 
-    private void sendBankAccountsRequest() throws IOException {
+    private String sendBankAccountsRequest(WebRequest bankAccountsRequest) throws IOException {
         Page bankAccountsPage = webClient.getPage(bankAccountsRequest);
-        bankAccountsResponse = bankAccountsPage.getWebResponse().getContentAsString();
+        return bankAccountsPage.getWebResponse().getContentAsString();
     }
 
-    private void parseBankAccountsResponseToJsonArray() {
-        jsonBankAccounts = JsonUtils.parseStringToJsonArray(bankAccountsResponse, "accounts");
+    private JsonArray parseBankAccountsResponseToJsonArray(String bankAccountsResponse) {
+        return JsonUtils.parseStringToJsonArray(bankAccountsResponse, "accounts");
     }
 }

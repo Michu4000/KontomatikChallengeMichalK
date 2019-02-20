@@ -26,8 +26,8 @@ class BankAccountFormatter {
     private static StringBuilder getGroupedEvery4Digits(String unformattedAccountNumber, StringBuilder formattedAccountNumberBuilder) {
         for (int i = 2; i <= 22; i += 4) {
             formattedAccountNumberBuilder
-                    .append(" ")
-                    .append(unformattedAccountNumber, i, i + 4);
+                .append(" ")
+                .append(unformattedAccountNumber, i, i + 4);
         }
         return formattedAccountNumberBuilder;
     }

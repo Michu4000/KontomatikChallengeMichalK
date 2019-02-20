@@ -1,6 +1,6 @@
 package michu4k.kontomatikchallenge.utils;
 
-import michu4k.kontomatikchallenge.datastructures.UserCredentials;
+import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 
 import javax.json.JsonArray;
@@ -13,10 +13,10 @@ public class PasswordUtils {
     public static int[] extractMaskedPasswordKeysIndexesFromResponse(String loginResponse) {
         JsonArray maskedPasswordKeysJsonArray = JsonUtils.parseStringToJsonArray(loginResponse, "passwordKeys");
         int[] maskedPasswordKeysIndexes = maskedPasswordKeysJsonArray
-                                                .getValuesAs(JsonNumber.class)
-                                                .stream()
-                                                .mapToInt(JsonNumber::intValue)
-                                                .toArray();
+            .getValuesAs(JsonNumber.class)
+            .stream()
+            .mapToInt(JsonNumber::intValue)
+            .toArray();
         return maskedPasswordKeysIndexes;
     }
 
@@ -29,11 +29,11 @@ public class PasswordUtils {
     public static String buildPasswordAndAvatarRequestBody(int[] maskedPasswordKeysIndexes, UserCredentials userCredentials) {
         JsonObjectBuilder masterBuilder = Json.createObjectBuilder();
         JsonObjectBuilder maskedPasswordBuilder = buildMaskedPassword(maskedPasswordKeysIndexes, userCredentials.password);
-        masterBuilder
-                .add("login", userCredentials.login)
-                .add("maskedPassword", maskedPasswordBuilder)
-                .add("avatarId", userCredentials.avatarId)
-                .add("loginScopeType", "WWW");
+        masterBuilder.
+            add("login", userCredentials.login)
+            .add("maskedPassword", maskedPasswordBuilder)
+            .add("avatarId", userCredentials.avatarId)
+            .add("loginScopeType", "WWW");
         JsonObject jsonPasswordAndAvatarRequestBody = masterBuilder.build();
         return JsonUtils.writeJsonToString(jsonPasswordAndAvatarRequestBody);
     }
@@ -42,8 +42,8 @@ public class PasswordUtils {
         JsonObjectBuilder maskedPasswordBuilder = Json.createObjectBuilder();
         for (int maskedPasswordKeyIdx : maskedPasswordKeysIndexes) {
             maskedPasswordBuilder.add(
-                    String.valueOf(maskedPasswordKeyIdx),
-                    password.substring(maskedPasswordKeyIdx - 1, maskedPasswordKeyIdx)
+                String.valueOf(maskedPasswordKeyIdx),
+                password.substring(maskedPasswordKeyIdx - 1, maskedPasswordKeyIdx)
             );
         }
         return maskedPasswordBuilder;
