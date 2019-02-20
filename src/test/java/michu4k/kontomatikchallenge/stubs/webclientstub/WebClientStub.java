@@ -34,6 +34,6 @@ public class WebClientStub extends WebClient {
         else if (requestUrl.equals(BankAccountSiteUrl))
             return (P) WebClientStubRequestHandler.handleBankAccountsRequest(request, this);
         else
-            return (P) WebClientStubRequestHandler.handleBadUrlError(request.getUrl().toString());
+            return (P) WebClientStubRequestHandler.handleBadUrlError(requestUrl);
     }
 }

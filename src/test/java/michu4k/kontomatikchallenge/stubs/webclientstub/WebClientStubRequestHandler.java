@@ -51,40 +51,43 @@ class WebClientStubRequestHandler {
     }
 
     private static Page checkHeadersInRequestPost(WebRequest request) throws IOException {
+        String url = request.getUrl().toString();
         Page commonHeadersError = checkCommonHeaders(request);
         if(commonHeadersError != null)
             return commonHeadersError;
         if(!request.getHttpMethod().equals(HttpMethod.POST))
-            return PageResponseFactoryHeaderError.getPageBadHttpMethod(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadHttpMethod(url);
         if(!request.getAdditionalHeaders().get("Content-Type").equals("application/json"))
-            return PageResponseFactoryHeaderError.getPageBadContentType(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadContentType(url);
         if(!request.getAdditionalHeaders().get("Referer").equals(UrlProvider.DOMAIN_URL + "login"))
-            return PageResponseFactoryHeaderError.getPageBadReferer(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadReferer(url);
         return null;
     }
 
     private static Page checkHeadersInRequestGet(WebRequest request, WebClientStub webClientStub) throws IOException {
+        String url = request.getUrl().toString();
         Page commonHeadersError = checkCommonHeaders(request);
         if(commonHeadersError != null)
             return commonHeadersError;
         if(!request.getHttpMethod().equals(HttpMethod.GET))
-            return PageResponseFactoryHeaderError.getPageBadHttpMethod(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadHttpMethod(url);
         if(!request.getAdditionalHeaders().get("Content-Type").equals("text/plain"))
-            return PageResponseFactoryHeaderError.getPageBadContentType(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadContentType(url);
         if(!request.getAdditionalHeaders().get("Referer").equals(UrlProvider.DOMAIN_URL + "dashboard/products"))
-            return PageResponseFactoryHeaderError.getPageBadReferer(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadReferer(url);
         if(!request.getAdditionalHeaders().get("Session-Token").equals(webClientStub.validSessionToken))
-            return PageResponseFactoryHeaderError.getPageBadSessionToken(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadSessionToken(url);
         return null;
     }
 
     private static Page checkCommonHeaders(WebRequest request) throws IOException {
+        String url = request.getUrl().toString();
         if(!request.getAdditionalHeaders().get("Accept").equals("*/*"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptHeader(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadAcceptHeader(url);
         if(!request.getAdditionalHeaders().get("Accept-Encoding").equals("gzip, deflate"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptEncoding(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadAcceptEncoding(url);
         if(!request.getAdditionalHeaders().get("Accept-Language").equals("en-US,en;q=0.9,pl;q=0.8"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptLanguage(request.getUrl().toString());
+            return PageResponseFactoryHeaderError.getPageBadAcceptLanguage(url);
         return null;
     }
 
