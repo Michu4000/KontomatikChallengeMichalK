@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.utils;
+package michu4k.kontomatikchallenge.utils.factories.pageresponsefactory;
 
 import com.gargoylesoftware.htmlunit.Page;
 
@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import michu4k.kontomatikchallenge.stubs.PageStub;
+import michu4k.kontomatikchallenge.utils.PageResponseBodyProvider;
+import michu4k.kontomatikchallenge.utils.UrlProvider;
 
 public class PageResponseFactory {
     public static Page getPageBadLogin() throws IOException {
@@ -37,20 +39,19 @@ public class PageResponseFactory {
     }
 
     public static Page getPageValidBankAccounts(int userId) throws IOException {
-        String urlAddress = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
-        return getPage(urlAddress, PageResponseBodyProvider.getValidBankAccounts());
+        String url = UrlProvider.BANK_ACCOUNTS_SITE_URL_BEGINNING + userId + UrlProvider.BANK_ACCOUNTS_SITE_URL_END;
+        return getPage(url, PageResponseBodyProvider.getValidBankAccounts());
     }
 
-    public static Page getPageBadUrl() throws IOException { // http 404
-        String urlAddress = "https://bad.url.com";
-        return getPage(urlAddress, "BAD URL");
+    public static Page getPageBadUrl(String url) throws IOException { // http 404
+        return getPage(url, "BAD URL");
     }
 
-    static Page getPage(String urlAddress, String responseBody) throws IOException {
-        return getPage(urlAddress, new HashMap<>(), responseBody);
+    static Page getPage(String url, String responseBody) throws IOException {
+        return getPage(url, new HashMap<>(), responseBody);
     }
 
-    private static Page getPage(String urlAddress, Map<String, String> responseHeaders, String responseBody) throws IOException {
-        return new PageStub(urlAddress, responseHeaders, responseBody);
+    private static Page getPage(String url, Map<String, String> responseHeaders, String responseBody) throws IOException {
+        return new PageStub(url, responseHeaders, responseBody);
     }
 }

@@ -1,13 +1,14 @@
-package michu4k.kontomatikchallenge.stubs;
+package michu4k.kontomatikchallenge.stubs.webclientstub;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebRequest;
 
+import michu4k.kontomatikchallenge.utils.UrlProvider;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
-import michu4k.kontomatikchallenge.utils.PageResponseFactory;
-import michu4k.kontomatikchallenge.utils.PageResponseFactoryHeaderError;
 import michu4k.kontomatikchallenge.utils.PasswordUtils;
+import michu4k.kontomatikchallenge.utils.factories.pageresponsefactory.PageResponseFactory;
+import michu4k.kontomatikchallenge.utils.factories.pageresponsefactory.PageResponseFactoryHeaderError;
 
 import javax.json.JsonObject;
 import java.io.IOException;
@@ -32,7 +33,7 @@ class WebClientStubRequestHandler {
         if(headersError != null)
             return headersError;
         if(checkPasswordAndAvatarRequestBody(request.getRequestBody(), webClientStub))
-            return PageResponseFactory.getPageValidPasswordAndAvatar(webClientStub.validSessionToken, webClientStub.getUserId());
+            return PageResponseFactory.getPageValidPasswordAndAvatar(webClientStub.validSessionToken, webClientStub.validUserId);
         else
             return PageResponseFactory.getPageBadPasswordAndAvatar();
     }
@@ -42,11 +43,11 @@ class WebClientStubRequestHandler {
         if(headersError != null)
             return headersError;
         else
-            return PageResponseFactory.getPageValidBankAccounts(webClientStub.getUserId());
+            return PageResponseFactory.getPageValidBankAccounts(webClientStub.validUserId);
     }
 
-    static Page handleBadUrlError() throws IOException {
-        return PageResponseFactory.getPageBadUrl();
+    static Page handleBadUrlError(String url) throws IOException {
+        return PageResponseFactory.getPageBadUrl(url);
     }
 
     private static Page checkHeadersInRequestPost(WebRequest request) throws IOException {
@@ -54,11 +55,11 @@ class WebClientStubRequestHandler {
         if(commonHeadersError != null)
             return commonHeadersError;
         if(!request.getHttpMethod().equals(HttpMethod.POST))
-            return PageResponseFactoryHeaderError.getPageBadHttpMethod();
+            return PageResponseFactoryHeaderError.getPageBadHttpMethod(request.getUrl().toString());
         if(!request.getAdditionalHeaders().get("Content-Type").equals("application/json"))
-            return PageResponseFactoryHeaderError.getPageBadContentType();
-        if(!request.getAdditionalHeaders().get("Referer").equals("https://login.nestbank.pl/login"))
-            return PageResponseFactoryHeaderError.getPageBadReferer();
+            return PageResponseFactoryHeaderError.getPageBadContentType(request.getUrl().toString());
+        if(!request.getAdditionalHeaders().get("Referer").equals(UrlProvider.DOMAIN_URL + "login"))
+            return PageResponseFactoryHeaderError.getPageBadReferer(request.getUrl().toString());
         return null;
     }
 
@@ -67,31 +68,30 @@ class WebClientStubRequestHandler {
         if(commonHeadersError != null)
             return commonHeadersError;
         if(!request.getHttpMethod().equals(HttpMethod.GET))
-            return PageResponseFactoryHeaderError.getPageBadHttpMethod();
+            return PageResponseFactoryHeaderError.getPageBadHttpMethod(request.getUrl().toString());
         if(!request.getAdditionalHeaders().get("Content-Type").equals("text/plain"))
-            return PageResponseFactoryHeaderError.getPageBadContentType();
-        if(!request.getAdditionalHeaders().get("Referer").equals("https://login.nestbank.pl/dashboard/products"))
-            return PageResponseFactoryHeaderError.getPageBadReferer();
+            return PageResponseFactoryHeaderError.getPageBadContentType(request.getUrl().toString());
+        if(!request.getAdditionalHeaders().get("Referer").equals(UrlProvider.DOMAIN_URL + "dashboard/products"))
+            return PageResponseFactoryHeaderError.getPageBadReferer(request.getUrl().toString());
         if(!request.getAdditionalHeaders().get("Session-Token").equals(webClientStub.validSessionToken))
-            return PageResponseFactoryHeaderError.getPageBadSessionToken(webClientStub.getUserId());
+            return PageResponseFactoryHeaderError.getPageBadSessionToken(request.getUrl().toString());
         return null;
     }
 
     private static Page checkCommonHeaders(WebRequest request) throws IOException {
         if(!request.getAdditionalHeaders().get("Accept").equals("*/*"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptHeader();
+            return PageResponseFactoryHeaderError.getPageBadAcceptHeader(request.getUrl().toString());
         if(!request.getAdditionalHeaders().get("Accept-Encoding").equals("gzip, deflate"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptEncoding();
+            return PageResponseFactoryHeaderError.getPageBadAcceptEncoding(request.getUrl().toString());
         if(!request.getAdditionalHeaders().get("Accept-Language").equals("en-US,en;q=0.9,pl;q=0.8"))
-            return PageResponseFactoryHeaderError.getPageBadAcceptLanguage();
+            return PageResponseFactoryHeaderError.getPageBadAcceptLanguage(request.getUrl().toString());
         return null;
     }
 
     private static boolean checkLoginRequestBody(String requestBody, String validLoginName) {
         // default valid request json: {"login":"testtest"}
         JsonObject jsonObject = JsonUtils.parseStringToJson(requestBody);
-        boolean isLoginNameValid = jsonObject.getString("login").equals(validLoginName);
-        return isLoginNameValid;
+        return jsonObject.getString("login").equals(validLoginName);
     }
 
     private static boolean checkPasswordAndAvatarRequestBody(String requestBody, WebClientStub webClientStub) {

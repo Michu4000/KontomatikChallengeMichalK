@@ -1,7 +1,7 @@
 package michu4k.kontomatikchallenge.utils;
 
+import michu4k.kontomatikchallenge.exceptions.badcredentials.BadPasswordException;
 import michu4k.kontomatikchallenge.structures.UserCredentials;
-import michu4k.kontomatikchallenge.exceptions.BadPasswordException;
 
 import javax.json.JsonArray;
 import javax.json.JsonNumber;

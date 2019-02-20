@@ -1,7 +1,7 @@
-package michu4k.kontomatikchallenge.exceptions;
+package michu4k.kontomatikchallenge.exceptions.badcredentials;
 
 public class BadCredentialsException extends RuntimeException {
-    public BadCredentialsException(){}
+    BadCredentialsException(){}
 
     public BadCredentialsException(Throwable throwable) {
         super(throwable);

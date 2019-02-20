@@ -9,9 +9,7 @@ import michu4k.kontomatikchallenge.scrapers.BankAccountScraper;
 import michu4k.kontomatikchallenge.scrapers.NestBankAccountScraper;
 import michu4k.kontomatikchallenge.structures.BankAccount;
 import michu4k.kontomatikchallenge.structures.BankSession;
-import michu4k.kontomatikchallenge.structures.UserCredentials;
-import michu4k.kontomatikchallenge.userinterface.UserInterface;
-import michu4k.kontomatikchallenge.utils.WebClientFactory;
+import michu4k.kontomatikchallenge.utils.factories.WebClientFactory;
 
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -35,35 +33,23 @@ public class NestBankAccountScraperAcceptanceTest {
     @Test
     @Parameters({"validLoginName", "validPassword", "validAvatarId"})
     public void successfulImportBankAccountsTest(String validLoginName, String validPassword, String validAvatarId) throws IOException {
-        BankSession bankSession = successfulLogin(validLoginName, validPassword, validAvatarId);
+        BankSession bankSession = AcceptanceTestsCommons.signIn(new String[] {validLoginName, validPassword, validAvatarId}, bankAuthenticator);
         List<BankAccount> bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
         boolean areThereAnyMoney = bankAccounts.get(1).isInCredit();
         assertTrue(areThereAnyMoney);
     }
 
     @Test(expectedExceptions = FailingHttpStatusCodeException.class)
-    public void blankSessionTest() throws IOException {
+    public void blankBankSessionTest() throws IOException {
         bankAccountScraper.scrapeBankAccounts(new BankSession());
     }
 
     @Test(expectedExceptions = FailingHttpStatusCodeException.class)
-    @Parameters({"validLoginName", "validPassword", "validAvatarId", "badUserId"})
-    public void badUserIdTest(String validLoginName, String validPassword, String validAvatarId, int badUserId) throws IOException {
-        BankSession bankSession = successfulLogin(validLoginName, validPassword, validAvatarId);
+    @Parameters({"badSessionToken", "badUserId"})
+    public void incorrectBankSessionTest(String badSessionToken, int badUserId) throws IOException {
+        BankSession bankSession = new BankSession();
+        bankSession.sessionToken = badSessionToken;
         bankSession.userId = badUserId;
         bankAccountScraper.scrapeBankAccounts(bankSession);
-    }
-
-    @Test(expectedExceptions = FailingHttpStatusCodeException.class)
-    @Parameters({"validLoginName", "validPassword", "validAvatarId", "badSessionToken"})
-    public void badSessionTokenTest(String validLoginName, String validPassword, String validAvatarId, String badSessionToken) throws IOException {
-        BankSession bankSession = successfulLogin(validLoginName, validPassword, validAvatarId);
-        bankSession.sessionToken = badSessionToken;
-        bankAccountScraper.scrapeBankAccounts(bankSession);
-    }
-
-    private BankSession successfulLogin(String validLoginName, String validPassword, String validAvatarId) throws IOException {
-        UserCredentials userCredentials = UserInterface.findOutUserCredentials(new String[] { validLoginName, validPassword, validAvatarId });
-        return bankAuthenticator.logIntoBankAccount(userCredentials);
     }
 }

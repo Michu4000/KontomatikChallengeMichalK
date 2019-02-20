@@ -19,7 +19,7 @@ import michu4k.kontomatikchallenge.structures.UserCredentials;
 import michu4k.kontomatikchallenge.exceptions.BadArgumentsException;
 import michu4k.kontomatikchallenge.userinterface.ErrorsHandler;
 import michu4k.kontomatikchallenge.userinterface.UserInterface;
-import michu4k.kontomatikchallenge.utils.WebClientFactory;
+import michu4k.kontomatikchallenge.utils.factories.WebClientFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 

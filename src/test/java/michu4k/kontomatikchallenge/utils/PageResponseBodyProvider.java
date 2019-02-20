@@ -4,38 +4,38 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-class PageResponseBodyProvider {
+public class PageResponseBodyProvider {
     private final static String jsonResourcesDir = System.getProperty("user.dir") + "/src/test/resources/jsonresponses/";
 
-    static String getBadLogin() throws IOException {
+    public static String getBadLogin() throws IOException {
         return getStringFromTextFile("bad_login.txt");
     }
 
-    static String getValidLoginBeginning() throws IOException {
+    public static String getValidLoginBeginning() throws IOException {
         return getStringFromTextFile("valid_login_beginning.txt");
     }
 
-    static String getValidLoginEndForNotMaskedPassword() throws IOException {
+    public static String getValidLoginEndForNotMaskedPassword() throws IOException {
         return getStringFromTextFile("valid_login_end_for_not_masked_password.txt");
     }
 
-    static String getBadPasswordAndAvatar() throws IOException {
+    public static String getBadPasswordAndAvatar() throws IOException {
         return getStringFromTextFile("bad_password_and_avatar.txt");
     }
 
-    static String getValidPasswordAndAvatarBeginning() throws IOException {
+    public static String getValidPasswordAndAvatarBeginning() throws IOException {
         return getStringFromTextFile("valid_password_and_avatar_beginning.txt");
     }
 
-    static String getValidPasswordAndAvatarEnd() throws IOException {
+    public static String getValidPasswordAndAvatarEnd() throws IOException {
         return getStringFromTextFile("valid_password_and_avatar_end.txt");
     }
 
-    static String getValidBankAccounts() throws IOException {
+    public static String getValidBankAccounts() throws IOException {
         return getStringFromTextFile("valid_bank_accounts.txt");
     }
 
-    static String getBadSessionToken() throws IOException {
+    public static String getBadSessionToken() throws IOException {
         return getStringFromTextFile("bad_session_token.txt");
     }
 

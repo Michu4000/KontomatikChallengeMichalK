@@ -2,10 +2,10 @@ package michu4k.kontomatikchallenge.scrapers;
 
 import michu4k.kontomatikchallenge.structures.BankAccount;
 import michu4k.kontomatikchallenge.structures.BankSession;
-import michu4k.kontomatikchallenge.utils.JsonBankAccountsExtractor;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.UrlProvider;
-import michu4k.kontomatikchallenge.utils.WebRequestFactory;
+import michu4k.kontomatikchallenge.utils.bankaccountstools.JsonBankAccountsExtractor;
+import michu4k.kontomatikchallenge.utils.factories.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.Page;
 import com.gargoylesoftware.htmlunit.WebClient;

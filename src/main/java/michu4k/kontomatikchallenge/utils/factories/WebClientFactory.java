@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.utils;
+package michu4k.kontomatikchallenge.utils.factories;
 
 import com.gargoylesoftware.htmlunit.ProxyConfig;
 import com.gargoylesoftware.htmlunit.WebClient;

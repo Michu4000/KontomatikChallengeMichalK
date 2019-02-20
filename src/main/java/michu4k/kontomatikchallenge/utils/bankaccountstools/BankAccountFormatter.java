@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.userinterface;
+package michu4k.kontomatikchallenge.utils.bankaccountstools;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;

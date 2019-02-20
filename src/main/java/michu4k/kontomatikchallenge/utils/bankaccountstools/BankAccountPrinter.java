@@ -1,11 +1,11 @@
-package michu4k.kontomatikchallenge.userinterface;
+package michu4k.kontomatikchallenge.utils.bankaccountstools;
 
 import michu4k.kontomatikchallenge.structures.BankAccount;
 
 import java.math.BigDecimal;
 
-class BankAccountPrinter {
-    static void printBankAccount(int accountIdx, BankAccount bankAccount) {
+public class BankAccountPrinter {
+    public static void printBankAccount(int accountIdx, BankAccount bankAccount) {
         printBankAccountIdx(accountIdx);
         printBankAccountName(bankAccount.accountName);
         printBankAccountNumber(bankAccount.accountNumber);

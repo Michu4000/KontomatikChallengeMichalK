@@ -5,7 +5,7 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import michu4k.kontomatikchallenge.scrapers.NestBankAccountScraper;
 import michu4k.kontomatikchallenge.structures.BankAccount;
 import michu4k.kontomatikchallenge.structures.BankSession;
-import michu4k.kontomatikchallenge.stubs.WebClientStub;
+import michu4k.kontomatikchallenge.stubs.webclientstub.WebClientStub;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -36,7 +36,7 @@ public class NestBankAccountScraperMockTest {
 
     private BankSession getValidBankSession() {
         BankSession bankSession = new BankSession();
-        bankSession.userId = ((WebClientStub)webClientStub).getUserId();
+        bankSession.userId = ((WebClientStub)webClientStub).validUserId;
         bankSession.sessionToken = ((WebClientStub)webClientStub).validSessionToken;
         return bankSession;
     }

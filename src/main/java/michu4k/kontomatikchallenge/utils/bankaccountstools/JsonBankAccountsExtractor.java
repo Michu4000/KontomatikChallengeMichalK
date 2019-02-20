@@ -1,4 +1,4 @@
-package michu4k.kontomatikchallenge.utils;
+package michu4k.kontomatikchallenge.utils.bankaccountstools;
 
 import michu4k.kontomatikchallenge.structures.BankAccount;
 

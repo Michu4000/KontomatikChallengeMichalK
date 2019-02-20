@@ -1,14 +1,14 @@
 package michu4k.kontomatikchallenge.bankauthentication;
 
+import michu4k.kontomatikchallenge.exceptions.badcredentials.BadCredentialsException;
+import michu4k.kontomatikchallenge.exceptions.badcredentials.BadLoginNameException;
+import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.structures.BankSession;
 import michu4k.kontomatikchallenge.structures.UserCredentials;
-import michu4k.kontomatikchallenge.exceptions.BadCredentialsException;
-import michu4k.kontomatikchallenge.exceptions.BadLoginNameException;
-import michu4k.kontomatikchallenge.exceptions.BadLoginMethodException;
 import michu4k.kontomatikchallenge.utils.JsonUtils;
 import michu4k.kontomatikchallenge.utils.PasswordUtils;
 import michu4k.kontomatikchallenge.utils.UrlProvider;
-import michu4k.kontomatikchallenge.utils.WebRequestFactory;
+import michu4k.kontomatikchallenge.utils.factories.WebRequestFactory;
 
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.WebRequest;
@@ -32,8 +32,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
     @Override
     public BankSession logIntoBankAccount(UserCredentials userCredentials) throws IOException {
         String loginResponse = enterLogin(userCredentials.login);
-        BankSession bankSession = enterPasswordAndAvatar(loginResponse, userCredentials);
-        return bankSession;
+        return enterPasswordAndAvatar(loginResponse, userCredentials);
     }
 
     private String enterLogin(String loginName) throws IOException {

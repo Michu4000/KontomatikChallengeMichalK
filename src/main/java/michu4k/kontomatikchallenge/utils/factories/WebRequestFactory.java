@@ -1,7 +1,9 @@
-package michu4k.kontomatikchallenge.utils;
+package michu4k.kontomatikchallenge.utils.factories;
 
 import com.gargoylesoftware.htmlunit.HttpMethod;
 import com.gargoylesoftware.htmlunit.WebRequest;
+
+import michu4k.kontomatikchallenge.utils.UrlProvider;
 
 import java.net.URL;
 
