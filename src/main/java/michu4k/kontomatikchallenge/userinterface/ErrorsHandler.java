@@ -1,7 +1,7 @@
 package michu4k.kontomatikchallenge.userinterface;
 
 public class ErrorsHandler {
-    private final static String ARGUMENT_ERROR_MSG = "Bad arguments. Usage: NestChecker <login> <password> <avatarId>";
+    private final static String ARGUMENT_ERROR_MSG = "Bad arguments. Usage: NestChecker <login> <password> <avatar_id>";
     private final static String CONNECTION_ERROR_MSG = "Connection or bank error.";
     private final static String BAD_CREDENTIALS_MSG = "Bad credentials.";
     private final static String INTERNAL_ERROR_MSG = "Internal application error.";

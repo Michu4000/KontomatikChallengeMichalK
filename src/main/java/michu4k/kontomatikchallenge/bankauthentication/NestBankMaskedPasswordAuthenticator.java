@@ -42,7 +42,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             checkLoginMethod(loginResponse);
             return loginResponse;
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
-            throw new BadLoginNameException(failingHttpStatusCodeException);
+            throw new BadLoginNameException("loginName is invalid, probably too short", failingHttpStatusCodeException);
         }
     }
 
@@ -54,7 +54,7 @@ public class NestBankMaskedPasswordAuthenticator implements BankAuthenticator {
             String sessionToken = extractSessionTokenFromPage(signedInPage);
             return createBankSession(passwordAndAvatarResponse, sessionToken);
         } catch (FailingHttpStatusCodeException failingHttpStatusCodeException) {
-            throw new BadCredentialsException(failingHttpStatusCodeException);
+            throw new BadCredentialsException("Bad loginName and/or passowrd and/or avatarId", failingHttpStatusCodeException);
         }
     }
 

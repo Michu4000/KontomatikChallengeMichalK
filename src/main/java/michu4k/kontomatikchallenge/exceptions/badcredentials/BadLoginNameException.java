@@ -1,7 +1,7 @@
 package michu4k.kontomatikchallenge.exceptions.badcredentials;
 
 public class BadLoginNameException extends BadCredentialsException {
-    public BadLoginNameException(Throwable throwable) {
-        super(throwable);
+    public BadLoginNameException(String message, Throwable throwable) {
+        super(message, throwable);
     }
 }

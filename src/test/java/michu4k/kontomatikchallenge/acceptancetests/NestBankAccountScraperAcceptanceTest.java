@@ -35,8 +35,7 @@ public class NestBankAccountScraperAcceptanceTest {
     public void successfulImportBankAccountsTest(String validLoginName, String validPassword, String validAvatarId) throws IOException {
         BankSession bankSession = AcceptanceTestsCommons.signIn(new String[] {validLoginName, validPassword, validAvatarId}, bankAuthenticator);
         List<BankAccount> bankAccounts = bankAccountScraper.scrapeBankAccounts(bankSession);
-        boolean areThereAnyMoney = bankAccounts.get(1).isInCredit();
-        assertTrue(areThereAnyMoney);
+        assertTrue(areThereAnyMoney(bankAccounts));
     }
 
     @Test(expectedExceptions = FailingHttpStatusCodeException.class)
@@ -51,5 +50,12 @@ public class NestBankAccountScraperAcceptanceTest {
         bankSession.sessionToken = badSessionToken;
         bankSession.userId = badUserId;
         bankAccountScraper.scrapeBankAccounts(bankSession);
+    }
+
+    private boolean areThereAnyMoney(List<BankAccount> bankAccounts) {
+        if(bankAccounts.size() > 0)
+            return bankAccounts.get(1).isInCredit();
+        else
+            return false;
     }
 }

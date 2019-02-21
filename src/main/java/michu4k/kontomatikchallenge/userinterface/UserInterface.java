@@ -43,7 +43,7 @@ public class UserInterface {
 
     private static void checkForBlankCredentials(UserCredentials userCredentials) {
         if (!userCredentials.isEverythingFilled())
-            throw new BadArgumentsException("Blank arguments: login and/or password");
+            throw new BadArgumentsException("Blank arguments: loginName and/or password");
     }
 
     private static boolean isValidAvatarId(String str) {
